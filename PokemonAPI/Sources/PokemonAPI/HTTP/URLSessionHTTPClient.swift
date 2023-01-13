@@ -7,16 +7,14 @@
 
 import Foundation
 
-protocol URLSessionURLFetching {
+public protocol URLSessionURLFetching {
     func data(from url: URL) async throws -> (Data, URLResponse)
 }
 
-extension URLSession: URLSessionURLFetching {}
-
-class URLSessionHTTPClient {
+public class URLSessionHTTPClient {
     private let urlSession: URLSessionURLFetching
 
-    init(urlSession: URLSessionURLFetching) {
+    public init(urlSession: URLSessionURLFetching) {
         self.urlSession = urlSession
     }
 
