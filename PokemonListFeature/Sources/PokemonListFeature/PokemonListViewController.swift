@@ -6,18 +6,23 @@
 //
 
 import UIKit
+import Combine
 
 class PokemonListViewController<VM: ViewModel>:
     UIViewController, UITableViewDelegate where VM.State == PokemonListViewState,
                                                 VM.Action == PokemonListViewAction {
 
     @IBOutlet var tableView: UITableView!
+    @IBOutlet var loadingView: UIView!
     private let viewModel: VM
+
+    private var cancellables = Set<AnyCancellable>()
 
     init(viewModel: VM) {
         self.viewModel = viewModel
         super.init(nibName: "PokemonListViewController",
                    bundle: Bundle.module)
+
     }
 
     required init?(coder: NSCoder) {
@@ -26,14 +31,18 @@ class PokemonListViewController<VM: ViewModel>:
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.statePublisher.sink { [weak self] state in
+            self?.loadingView.isHidden = !state.isLoading
+        }.store(in: &cancellables)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
-        guard row >= 0 && row < viewModel.state.items.count else {
+        let items = viewModel.stateValue.items
+        guard row >= 0 && row < items.count else {
             return
         }
-        let pokemonId = viewModel.state.items[row].id
+        let pokemonId = items[row].id
         viewModel.perform(.viewDetails(id: pokemonId))
     }
 }

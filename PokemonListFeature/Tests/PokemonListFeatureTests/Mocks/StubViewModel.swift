@@ -6,14 +6,14 @@
 //
 
 import Foundation
+import Combine
 @testable import PokemonListFeature
 
 class StubViewModel<State, Action>: ViewModel {
-    var state: State {
-        willSet {
-            objectWillChange.send()
-        }
-    }
+    var statePublisher: AnyPublisher<State, Never> { $state.eraseToAnyPublisher() }
+    var stateValue: State { state }
+
+    @Published var state: State
 
     init(initialState: State) {
         state = initialState

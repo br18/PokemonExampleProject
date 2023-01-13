@@ -6,11 +6,14 @@
 //
 
 import Foundation
+import Combine
 
-protocol ViewModel: ObservableObject {
+protocol ViewModel {
     associatedtype State
     associatedtype Action
 
-    var state: State { get }
+    var statePublisher: AnyPublisher<State, Never> { get }
+    var stateValue: State { get }
+
     func perform(_ action: Action)
 }
