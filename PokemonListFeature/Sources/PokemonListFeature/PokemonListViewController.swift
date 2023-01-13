@@ -44,6 +44,7 @@ class PokemonListViewController<VM: ViewModel>:
         viewModel.statePublisher.sink { [weak self] state in
             self?.loadingView.isHidden = !state.isLoading
             self?.dataSource.update(newItems: state.items)
+            self?.tableView.reloadData()
         }
         .store(in: &cancellables)
 
