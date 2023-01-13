@@ -51,6 +51,8 @@ class PokemonListViewController<VM: ViewModel>:
             self?.dataSource.update(newItems: state.items)
         }
         .store(in: &cancellables)
+
+        viewModel.perform(.loadData)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

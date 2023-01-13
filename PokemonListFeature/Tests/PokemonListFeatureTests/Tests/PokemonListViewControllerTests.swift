@@ -26,8 +26,9 @@ final class PokemonListViewControllerTests: XCTestCase {
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: 1, section: 534354) as IndexPath)
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: 0, section: 1) as IndexPath)
 
-        XCTAssertEqual(viewModel.performActionParameters.count, 2)
-        XCTAssertEqual(viewModel.performActionParameters.first, .viewDetails(id: loadedState.items[1].id))
+        XCTAssertEqual(viewModel.performActionParameters.count, 3)
+        XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
+        XCTAssertEqual(viewModel.performActionParameters[1], .viewDetails(id: loadedState.items[1].id))
         XCTAssertEqual(viewModel.performActionParameters.last, .viewDetails(id: loadedState.items[0].id))
     }
 
@@ -39,7 +40,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: -1, section: 0) as IndexPath)
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: 2, section: 0) as IndexPath)
 
-        XCTAssertEqual(viewModel.performActionParameters.count, 0)
+        XCTAssertEqual(viewModel.performActionParameters, [.loadData])
     }
 
     func test_whenStateIsLoading_loadingViewIsShown() {
@@ -106,6 +107,14 @@ final class PokemonListViewControllerTests: XCTestCase {
         viewModel.state = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello")])
 
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    func test_onViewLoaded_requestsLoadData() {
+        let viewModel = TestViewModel(initialState: loadedState)
+        let _ = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+        XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
     }
     
     private func makeSut(viewModel: TestViewModel) -> PokemonListViewController<TestViewModel> {
