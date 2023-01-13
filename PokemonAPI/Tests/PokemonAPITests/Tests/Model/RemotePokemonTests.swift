@@ -46,8 +46,8 @@ final class RemotePokemonTests: XCTestCase {
         let name = "Bulbasaur"
         let height = 56
         let weight = 546
-        let type1 = NamedAPIResource(name: "Hello", url: "World")
-        let type2 = NamedAPIResource(name: "Fizz", url: "Buzz")
+        let type1 = NamedAPIResource(name: "Hello", url: URL.any())
+        let type2 = NamedAPIResource(name: "Fizz", url: URL(string: "https://pokeapi.co")!)
         let data = validDataWithTypes(name: name, height: height, weight: weight, imageURL: validURL, type1: type1, type2: type2)
 
         let result: RemotePokemon = try data.decode()

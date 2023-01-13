@@ -86,12 +86,6 @@ struct RemoteObject: Decodable, Equatable {
     let message: String
 }
 
-private extension URL {
-    static func any() -> URL {
-        URL(string: "https://google.com")!
-    }
-}
-
 private extension URLResponse {
     static func any() -> URLResponse {
         URLResponse(url: URL.any(),

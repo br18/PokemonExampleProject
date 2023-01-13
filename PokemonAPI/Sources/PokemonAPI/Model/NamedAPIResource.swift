@@ -9,5 +9,5 @@ import Foundation
 
 struct NamedAPIResource: Decodable {
     let name: String
-    let url: String
+    let url: URL
 }

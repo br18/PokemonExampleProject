@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol HTTPClient {
+public protocol HTTPClient {
     func get<T: Decodable>(url: URL) async throws -> T
 }

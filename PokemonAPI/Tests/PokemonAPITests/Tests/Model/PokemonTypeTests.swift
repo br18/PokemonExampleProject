@@ -21,15 +21,23 @@ final class PokemonTypeTests: XCTestCase {
         XCTAssertThrowsError(try data.decode() as PokemonType)
     }
 
-    func test_decode_givenValidData_decodesToObjectWithDataValues() throws {
+    func test_decode_givenValidDataWithInvalidURL_throwsError() throws {
         let name = "Hello"
-        let url = "World"
+        let url = "#%#^fw"
+        let data = validData(name: name, url: url)
+
+        XCTAssertThrowsError(try data.decode() as PokemonType)
+    }
+
+    func test_decode_givenValidDataWithValidURL_decodesToObjectWithDataValues() throws {
+        let name = "Hello"
+        let url = "https://pokeapi.co/api/v2/pokemon/6"
         let data = validData(name: name, url: url)
 
         let result: PokemonType = try data.decode()
 
         XCTAssertEqual(result.type.name, name)
-        XCTAssertEqual(result.type.url, url)
+        XCTAssertEqual(result.type.url.absoluteString, url)
     }
 
     private func validData(name: String, url: String) -> Data {

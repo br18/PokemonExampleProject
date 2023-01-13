@@ -51,7 +51,7 @@ final class NamedAPIResourceListTests: XCTestCase {
                              line: UInt = #line) {
 
         XCTAssertEqual(resource?.name, data.name)
-        XCTAssertEqual(resource?.url, data.url)
+        XCTAssertEqual(resource?.url.absoluteString, data.url)
     }
 
     typealias NameAPIResourceResultData = (name: String, url: String)

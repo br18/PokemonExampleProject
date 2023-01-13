@@ -29,7 +29,7 @@ final class NamedAPIResourceTests: XCTestCase {
         let result: NamedAPIResource = try data.decode()
 
         XCTAssertEqual(result.name, name)
-        XCTAssertEqual(result.url, url)
+        XCTAssertEqual(result.url.absoluteString, url)
     }
 
     private func validData(name: String, url: String) -> Data {
