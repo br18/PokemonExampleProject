@@ -77,10 +77,27 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.last, cellIdentifier)
     }
 
+    func test_cellForRowAtIndexPath_whenCellTypeReturnedIsNotTypeForPopulateCellView_doesNotCallPopulateCellView() {
+        let items = ["1", "2", "3"]
+
+        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
+        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
+            capturedPopulateCellViewCalls.append((item: item, view: view))
+        }
+
+        let tableView = UITableViewSpy()
+        tableView.stubbedDequeueReusableCellResult = UITableViewCell()
+
+        let sut = makeSUT(items: items, populateCellView: populateCellView)
+
+        _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: 1, section: 0))
+
+        XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
+    }
+
     private func makeSUT(items: [String] = [],
                          cellIdentifier: String = "",
-                         populateCellView: @escaping (String, UITableViewCell) -> Void = { _,_  in } ) -> ArrayTableViewDataSource<String, UITableViewCell> {
-
+                         populateCellView: @escaping (String, TestTableViewCell) -> Void = { _,_  in } ) -> ArrayTableViewDataSource<String, TestTableViewCell> {
         ArrayTableViewDataSource(items: items,
                                  cellIdentifier: cellIdentifier,
                                  populateCellView: populateCellView)
@@ -88,6 +105,8 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
     }
 
 }
+
+private class TestTableViewCell: UITableViewCell {}
 
 class UITableViewSpy: UITableView {
     var dequeueReusableCellParametersList = [String]()
