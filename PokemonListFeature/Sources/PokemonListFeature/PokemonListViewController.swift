@@ -39,11 +39,21 @@ class PokemonListViewController<VM: ViewModel>:
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
         let items = viewModel.stateValue.items
-        guard row >= 0 && row < items.count else {
+        guard items.containsInRange(row) else {
             return
         }
         let pokemonId = items[row].id
         viewModel.perform(.viewDetails(id: pokemonId))
+    }
+}
+
+private extension Array {
+    func containsInRange(_ index: Int) -> Bool {
+        range().contains(index)
+    }
+
+    private func range() -> Range<Int> {
+        return 0..<count
     }
 }
 
