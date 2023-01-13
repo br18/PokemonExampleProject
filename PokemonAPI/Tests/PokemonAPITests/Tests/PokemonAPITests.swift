@@ -24,17 +24,32 @@ public struct PokemonDetails {
 public class PokemonAPI {
     private let httpClient: HTTPClient
 
+    private let baseURLString = "https://pokeapi.co/api/v2"
+
     public init(httpClient: HTTPClient) {
         self.httpClient = httpClient
     }
 
     public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> [Pokemon] {
-        _ = try await httpClient.get(url: URL.any()) as NamedAPIResourceList
+        _ = try await httpClient.get(url: createFetchPokemonListURL(offset: offset, limit: limit)) as NamedAPIResourceList
         return []
     }
 
     public func fetchPokemonDetails(id: String) async throws -> PokemonDetails {
         PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
+    }
+
+    private func createFetchPokemonListURL(offset: Int, limit: Int) -> URL {
+        let baseURL = URL(string: baseURLString)!
+        var components = URLComponents()
+        components.scheme = baseURL.scheme
+        components.host = baseURL.host
+        components.path = baseURL.path + "/pokemon"
+        components.queryItems = [
+            URLQueryItem(name: "offset", value: String(offset)),
+            URLQueryItem(name: "limit", value: String(limit))
+        ]
+        return components.url!
     }
 }
 
@@ -71,6 +86,8 @@ private extension NamedAPIResourceList {
 
 final class PokemonAPITests: XCTestCase {
 
+    private let fetchPokemonListBaseURL = "https://pokeapi.co/api/v2/pokemon"
+
     func test_fetchPokemonList_whenHTTPClientThrowsError_throwsError() async {
         let httpResult: Result<NamedAPIResourceList, Error> = .failure(MockError.mock1)
         let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
@@ -78,6 +95,29 @@ final class PokemonAPITests: XCTestCase {
         let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
 
         await XCTAssertThrowsErrorAsync(try await sut.fetchPokemonList(offset: 5, limit: 5), "Fetch pokemon list")
+    }
+
+    func test_fetchPokemonList_givenOffsetAndLimit_requestsGetPokemonListURLWithOffsetAndLimit() async {
+        let offset1 = 353
+        let limit1 = 24
+        let offset2 = 3
+        let limit2 = 44
+
+        let httpResult: Result<NamedAPIResourceList, Error> = .failure(MockError.mock1)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+        _ = try? await sut.fetchPokemonList(offset: offset1, limit: limit1)
+        _ = try? await sut.fetchPokemonList(offset: offset2, limit: limit2)
+
+        XCTAssertEqual(httpClient.getParametersList.count, 2)
+
+        let urlComponents1 = URLComponents(url: httpClient.getParametersList.first!, resolvingAgainstBaseURL: true)
+        let urlComponents2 = URLComponents(url: httpClient.getParametersList.last!, resolvingAgainstBaseURL: true)
+
+        XCTAssertEqual(urlComponents1, URLComponents(string: "\(fetchPokemonListBaseURL)?offset=\(offset1)&limit=\(limit1)"))
+        XCTAssertEqual(urlComponents2, URLComponents(string: "\(fetchPokemonListBaseURL)?offset=\(offset2)&limit=\(limit2)"))
     }
 
     private func createSut<U: Decodable>(responseType: U.Type,
