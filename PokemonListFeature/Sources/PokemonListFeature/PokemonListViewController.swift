@@ -44,7 +44,7 @@ class PokemonListViewController<VM: ViewModel>:
         tableView.register(UINib(nibName: cellName, bundle: Bundle.module),
                            forCellReuseIdentifier: cellName)
 
-        //tableView.dataSource = dataSource
+        tableView.dataSource = dataSource
         tableView.delegate = self
 
         viewModel.statePublisher.sink { [weak self] state in

@@ -85,8 +85,12 @@ final class PokemonListViewControllerTests: XCTestCase {
     }
 
     func test_onViewLoaded_tableViewDataSourceIsArrayTableViewDataSourceWithPokemonCell() {
+        let viewModel = TestViewModel(initialState: loadingState)
+        let sut = makeSut(viewModel: viewModel)
 
+        XCTAssertTrue(sut.tableView.dataSource is ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>)
     }
+    
     private func makeSut(viewModel: TestViewModel) -> PokemonListViewController<TestViewModel> {
         let sut = PokemonListViewController(viewModel: viewModel)
         let _ = sut.view
