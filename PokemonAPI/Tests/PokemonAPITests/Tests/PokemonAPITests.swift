@@ -72,4 +72,13 @@ final class PokemonAPITests: XCTestCase {
 
 }
 
+class StubHTTPClient<U: Decodable>: HTTPClient {
+    var getParametersList = [URL]()
+    var stubbedGetResult: Result<U, Error> = .failure(MockError.mock1)
+
+    func get<T>(url: URL) async throws -> T {
+        getParametersList.append(url)
+        return try stubbedGetResult.get() as! T
+    }
+}
 
