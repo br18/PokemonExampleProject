@@ -29,7 +29,8 @@ public class PokemonAPI {
     }
 
     public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> [Pokemon] {
-        []
+        _ = try await httpClient.get(url: URL.any()) as NamedAPIResourceList
+        return []
     }
 
     public func fetchPokemonDetails(id: String) async throws -> PokemonDetails {
@@ -70,11 +71,31 @@ private extension NamedAPIResourceList {
 
 final class PokemonAPITests: XCTestCase {
 
+    func test_fetchPokemonList_whenHTTPClientThrowsError_throwsError() async {
+        let httpResult: Result<NamedAPIResourceList, Error> = .failure(MockError.mock1)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+        await XCTAssertThrowsErrorAsync(try await sut.fetchPokemonList(offset: 5, limit: 5), "Fetch pokemon list")
+    }
+
+    private func createSut<U: Decodable>(responseType: U.Type,
+                                         httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPI {
+        let sut = PokemonAPI(httpClient: httpClient)
+        trackForMemoryLeaks(sut)
+        return sut
+    }
 }
 
 class StubHTTPClient<U: Decodable>: HTTPClient {
+
+    init(stubbedGetResult: Result<U, Error>) {
+        self.stubbedGetResult = stubbedGetResult
+    }
+
     var getParametersList = [URL]()
-    var stubbedGetResult: Result<U, Error> = .failure(MockError.mock1)
+    var stubbedGetResult: Result<U, Error>
 
     func get<T>(url: URL) async throws -> T {
         getParametersList.append(url)
