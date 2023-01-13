@@ -8,6 +8,7 @@
 import Foundation
 import XCTest
 import UIKit
+@testable import PokemonListFeature
 
 class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITableViewDataSource {
     private var items: [Item]
@@ -31,17 +32,26 @@ class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITab
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        _ = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)
-        return UITableViewCell()
+        guard items.containsInRange(indexPath.row) else {
+            return UITableViewCell()
+        }
+
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier) as? CellView else {
+            return UITableViewCell()
+        }
+
+        populateCellView(items[indexPath.row], cell)
+
+        return cell
     }
 }
 
 
 final class ArrayTableViewDataSourceTests: XCTestCase {
 
-    func test_numberOfRowsInSection_givenInitWithItems_isNumberOfItemsForAnySection() {
-        let items = ["1", "2", "3"]
+    private let items = ["1", "2", "3"]
 
+    func test_numberOfRowsInSection_givenInitWithItems_isNumberOfItemsForAnySection() {
         let sut = makeSUT(items: items)
 
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), items.count)
@@ -50,8 +60,6 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
     }
 
     func test_updateItems_changesNumberOfRowsToMatchNewItems() {
-        let items = ["1", "2", "3"]
-
         let sut = makeSUT(items: items)
 
         let newItems = ["1", "2", "3", "4"]
@@ -65,7 +73,7 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
 
     func test_cellForRowAtIndexPath_givenInitWithCellIdentifier_dequeuesCellWithIdentifier() {
         let cellIdentifier = "fwjbfwej"
-        let sut = makeSUT(cellIdentifier: cellIdentifier)
+        let sut = makeSUT(items: items, cellIdentifier: cellIdentifier)
 
         let tableViewSpy = UITableViewSpy()
 
@@ -78,8 +86,6 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
     }
 
     func test_cellForRowAtIndexPath_whenCellTypeReturnedIsNotTypeForPopulateCellView_doesNotCallPopulateCellView() {
-        let items = ["1", "2", "3"]
-
         var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
         let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
             capturedPopulateCellViewCalls.append((item: item, view: view))
@@ -96,8 +102,6 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
     }
 
     func test_cellForRowAtIndexPath_whenExpectedCellTypeReturnedButRowIndexOutOfItemsRange_doesNotCallPopulateCellView() {
-        let items = ["1", "2", "3"]
-
         var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
         let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
             capturedPopulateCellViewCalls.append((item: item, view: view))
@@ -112,6 +116,30 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: 3, section: 0))
 
         XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
+    }
+
+    func test_cellForRowAtIndexPath_whenExpectedCellTypeReturnedAndIndexInRange_populatesItemAtIndexWithDequeuedCellAndReturnsIt() {
+        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
+        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
+            capturedPopulateCellViewCalls.append((item: item, view: view))
+        }
+
+        let tableView = UITableViewSpy()
+        let tableViewCell = TestTableViewCell()
+        tableView.stubbedDequeueReusableCellResult = tableViewCell
+
+        let sut = makeSUT(items: items, populateCellView: populateCellView)
+
+        let result1 = sut.tableView(tableView, cellForRowAt: IndexPath(row: 2, section: 0))
+        let result2 = sut.tableView(tableView, cellForRowAt: IndexPath(row: 1, section: 0))
+
+        XCTAssertEqual(capturedPopulateCellViewCalls.count, 2)
+        XCTAssertEqual(capturedPopulateCellViewCalls.first?.item, items[2])
+        XCTAssertEqual(capturedPopulateCellViewCalls.first?.view, tableViewCell)
+        XCTAssertEqual(capturedPopulateCellViewCalls.last?.item, items[1])
+        XCTAssertEqual(capturedPopulateCellViewCalls.last?.view, tableViewCell)
+        XCTAssertEqual(result1, tableViewCell)
+        XCTAssertEqual(result2, tableViewCell)
     }
 
     private func makeSUT(items: [String] = [],
