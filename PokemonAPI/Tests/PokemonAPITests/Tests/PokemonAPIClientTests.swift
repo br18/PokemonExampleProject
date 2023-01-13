@@ -49,7 +49,9 @@ final class PokemonAPIClientTests: XCTestCase {
         let id2 = 221
         let resourceListResults = [NamedAPIResource(name: "bulbasaur",url: URL.pokemonURL(id: String(id1))),
                                    NamedAPIResource(name: "ivysaur", url: URL.pokemonURL(id: String(id2)))]
-        let resourceList = NamedAPIResourceList(count: 2,
+
+        let totalCount = 2432
+        let resourceList = NamedAPIResourceList(count: totalCount,
                                                 results: resourceListResults)
 
         let httpResult: Result<NamedAPIResourceList, Error> = .success(resourceList)
@@ -59,11 +61,12 @@ final class PokemonAPIClientTests: XCTestCase {
 
         let result = try await sut.fetchPokemonList(limit: 5)
 
-        XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result.first?.id, id1)
-        XCTAssertEqual(result.first?.name, resourceListResults.first?.name)
-        XCTAssertEqual(result.last?.id, id2)
-        XCTAssertEqual(result.last?.name, resourceListResults.last?.name)
+        XCTAssertEqual(result.totalCount, totalCountc)
+        XCTAssertEqual(result.pokemon.count, 2)
+        XCTAssertEqual(result.pokemon.first?.id, id1)
+        XCTAssertEqual(result.pokemon.first?.name, resourceListResults.first?.name)
+        XCTAssertEqual(result.pokemon.last?.id, id2)
+        XCTAssertEqual(result.pokemon.last?.name, resourceListResults.last?.name)
     }
 
     func test_fetchPokemonList_whenHTTPClientReturnsValidResponseWithURLThatHasNoPathComponents_throwsError() async {

@@ -12,6 +12,11 @@ public struct Pokemon {
     let name: String
 }
 
+public struct PokemonListResponse {
+    let pokemon: [Pokemon]
+    let totalCount: Int
+}
+
 public struct PokemonDetails {
     let name: String
     let image: URL
@@ -29,7 +34,7 @@ public class PokemonAPIClient {
         self.httpClient = httpClient
     }
 
-    public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> [Pokemon] {
+    public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> PokemonListResponse {
         let resourceList: NamedAPIResourceList = try await httpClient.get(url: createFetchPokemonListURL(offset: offset, limit: limit))
         return try resourceList.toPokemonList()
     }
@@ -80,8 +85,8 @@ private extension NamedAPIResourceList {
         case lastPathComponentNotInt
     }
 
-    func toPokemonList() throws -> [Pokemon] {
-        try results.map { resource in
+    func toPokemonList() throws -> PokemonListResponse {
+        let pokemon = try results.map { resource in
             guard let lastPathComponent = resource.url.pathComponents.last else {
                 throw Error.noPathComponents
             }
@@ -92,5 +97,7 @@ private extension NamedAPIResourceList {
 
             return Pokemon(id: id, name: resource.name)
         }
+
+        return PokemonListResponse(pokemon: pokemon, totalCount: count)
     }
 }
