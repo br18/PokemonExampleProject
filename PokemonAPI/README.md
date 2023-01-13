@@ -1,3 +1,3 @@
 # PokemonAPI
 
-A description of this package.
+Functionality for calling the PokeAPI: https://pokeapi.co
