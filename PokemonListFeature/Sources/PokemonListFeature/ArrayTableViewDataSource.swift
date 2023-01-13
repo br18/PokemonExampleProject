@@ -95,6 +95,25 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
     }
 
+    func test_cellForRowAtIndexPath_whenExpectedCellTypeReturnedButRowIndexOutOfItemsRange_doesNotCallPopulateCellView() {
+        let items = ["1", "2", "3"]
+
+        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
+        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
+            capturedPopulateCellViewCalls.append((item: item, view: view))
+        }
+
+        let tableView = UITableViewSpy()
+        tableView.stubbedDequeueReusableCellResult = TestTableViewCell()
+
+        let sut = makeSUT(items: items, populateCellView: populateCellView)
+
+        _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: -1, section: 0))
+        _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: 3, section: 0))
+
+        XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
+    }
+
     private func makeSUT(items: [String] = [],
                          cellIdentifier: String = "",
                          populateCellView: @escaping (String, TestTableViewCell) -> Void = { _,_  in } ) -> ArrayTableViewDataSource<String, TestTableViewCell> {
