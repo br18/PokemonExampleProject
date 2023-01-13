@@ -31,6 +31,7 @@ class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITab
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        _ = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)
         return UITableViewCell()
     }
 }
@@ -60,6 +61,20 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         sut.update(newItems: newItems)
 
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), newItems.count)
+    }
+
+    func test_cellForRowAtIndexPath_givenInitWithCellIdentifier_dequeuesCellWithIdentifier() {
+        let cellIdentifier = "fwjbfwej"
+        let sut = makeSUT(cellIdentifier: cellIdentifier)
+
+        let tableViewSpy = UITableViewSpy()
+
+        _ = sut.tableView(tableViewSpy, cellForRowAt: IndexPath(item: 0, section: 0))
+        _ = sut.tableView(tableViewSpy, cellForRowAt: IndexPath(item: 1, section: 0))
+
+        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.count, 2)
+        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.first, cellIdentifier)
+        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.last, cellIdentifier)
     }
 
     private func makeSUT(items: [String] = [],
