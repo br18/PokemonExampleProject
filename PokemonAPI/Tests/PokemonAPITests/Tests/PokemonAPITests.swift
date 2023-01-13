@@ -36,8 +36,8 @@ public class PokemonAPI {
     }
 
     public func fetchPokemonDetails(id: Int) async throws -> PokemonDetails {
-        _ = try await httpClient.get(url: createPokemonDetailsURL(id: id)) as RemotePokemon
-        return PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
+        let remotePokemon: RemotePokemon = try await httpClient.get(url: createPokemonDetailsURL(id: id))
+        return remotePokemon.toPokemonDetails()
     }
 
     private func createPokemonDetailsURL(id: Int) -> URL {
@@ -210,8 +210,33 @@ final class PokemonAPITests: XCTestCase {
         XCTAssertEqual(urlComponents2, URLComponents(string: "\(fetchPokemonListBaseURL)/\(id2)"))
     }
 
-//    func test_fetchPokemonDetails_whenHTTPClientIsSuccessfulWithRemotePokemon_mapsPokemonToDetails() async {
-//    }
+    func test_fetchPokemonDetails_whenHTTPClientIsSuccessfulWithRemotePokemon_mapsPokemonToDetails() async throws {
+
+        let types = ["grass", "water"]
+        let remotePokemon = RemotePokemon(name: "bulbasaur",
+                                          heightInDecimeters: 56,
+                                          weightInHectograms: 43,
+                                          sprites: PokemonSprites(frontDefault: URL.any()),
+                                          types: types.map { makePokemonType(name: $0, url: URL.any()) })
+
+        let httpResult: Result<RemotePokemon, Error> = .success(remotePokemon)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: RemotePokemon.self, httpClient: httpClient)
+
+        let result = try await sut.fetchPokemonDetails(id: 34)
+
+        XCTAssertEqual(result.name, remotePokemon.name)
+        XCTAssertEqual(result.weightInHectograms, remotePokemon.weightInHectograms)
+        XCTAssertEqual(result.heightInDecimeters, remotePokemon.heightInDecimeters)
+        XCTAssertEqual(result.image, remotePokemon.sprites.frontDefault)
+        XCTAssertEqual(result.types, types)
+    }
+
+
+    private func makePokemonType(name: String, url: URL) -> PokemonType {
+        PokemonType(type: NamedAPIResource(name: name, url: url))
+    }
 
     private func createSut<U: Decodable>(responseType: U.Type,
                                          httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPI {

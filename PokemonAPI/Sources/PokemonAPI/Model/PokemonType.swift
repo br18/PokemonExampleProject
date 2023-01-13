@@ -7,6 +7,6 @@
 
 import Foundation
 
-class PokemonType: Decodable {
+struct PokemonType: Decodable {
     let type: NamedAPIResource
 }
