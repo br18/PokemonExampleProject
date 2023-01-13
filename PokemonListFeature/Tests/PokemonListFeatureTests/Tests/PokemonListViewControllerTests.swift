@@ -109,11 +109,3 @@ extension PokemonListViewAction: Equatable {
         }
     }
 }
-
-//extension XCTestCase {
-//    func waitForViewModelToChange(object: any ViewModel) {
-//        var cancellable: Cancellable?
-//        object.objectWillChange.sink(receiveCompletion: <#T##((Subscribers.Completion<Publisher.Failure>) -> Void)##((Subscribers.Completion<Publisher.Failure>) -> Void)##(Subscribers.Completion<Publisher.Failure>) -> Void#>, receiveValue: <#T##((Publisher.Output) -> Void)##((Publisher.Output) -> Void)##(Publisher.Output) -> Void#>)
-//
-//    }
-//}
