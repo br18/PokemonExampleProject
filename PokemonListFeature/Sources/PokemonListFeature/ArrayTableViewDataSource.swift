@@ -23,7 +23,7 @@ class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITab
     }
 
     func update(newItems: [Item]) {
-        //items = newItems
+        items = newItems
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -46,6 +46,20 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), items.count)
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 1), items.count)
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: Int.max), items.count)
+    }
+
+    func test_updateItems_changesNumberOfRowsToMatchNewItems() {
+        let items = ["1", "2", "3"]
+
+        let sut = makeSUT(items: items)
+
+        let newItems = ["1", "2", "3", "4"]
+
+        XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), items.count)
+
+        sut.update(newItems: newItems)
+
+        XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), newItems.count)
     }
 
     private func makeSUT(items: [String] = [],
