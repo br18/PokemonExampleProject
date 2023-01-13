@@ -10,45 +10,7 @@ import XCTest
 import UIKit
 @testable import PokemonListFeature
 
-class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITableViewDataSource {
-    private var items: [Item]
-    private let cellIdentifier: String
-    private let populateCellView: (Item, CellView) -> Void
-
-    init(items: [Item] = [],
-         cellIdentifier: String,
-         populateCellView: @escaping (Item, CellView) -> Void) {
-        self.items = items
-        self.cellIdentifier = cellIdentifier
-        self.populateCellView = populateCellView
-    }
-
-    func update(newItems: [Item]) {
-        items = newItems
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard items.containsInRange(indexPath.row) else {
-            return UITableViewCell()
-        }
-
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier) as? CellView else {
-            return UITableViewCell()
-        }
-
-        populateCellView(items[indexPath.row], cell)
-
-        return cell
-    }
-}
-
-
 final class ArrayTableViewDataSourceTests: XCTestCase {
-
     private let items = ["1", "2", "3"]
 
     func test_numberOfRowsInSection_givenInitWithItems_isNumberOfItemsForAnySection() {
@@ -60,6 +22,7 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
     }
 
     func test_updateItems_changesNumberOfRowsToMatchNewItems() {
+
         let sut = makeSUT(items: items)
 
         let newItems = ["1", "2", "3", "4"]
