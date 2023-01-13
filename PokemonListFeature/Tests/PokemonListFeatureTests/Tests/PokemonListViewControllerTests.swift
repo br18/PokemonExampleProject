@@ -98,6 +98,8 @@ final class PokemonListViewControllerTests: XCTestCase {
         let sut = makeSut(viewModel: viewModel)
 
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 2)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 1), viewModel.state.items.last?.name)
     }
 
     func test_whenStateItemsChange_updatesItemsInDataSource() {
@@ -107,6 +109,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         viewModel.state = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello")])
 
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
     }
 
     func test_onViewLoaded_requestsLoadData() {
@@ -115,6 +118,13 @@ final class PokemonListViewControllerTests: XCTestCase {
 
         XCTAssertEqual(viewModel.performActionParameters.count, 1)
         XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
+    }
+
+    private func getCellNameText(sut: PokemonListViewController<TestViewModel>, row: Int) -> String? {
+        guard let cell = sut.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? PokemonListTableViewCell else {
+            return nil
+        }
+        return cell.nameLabel.text
     }
     
     private func makeSut(viewModel: TestViewModel) -> PokemonListViewController<TestViewModel> {
