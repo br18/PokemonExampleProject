@@ -91,8 +91,9 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
 
 class UITableViewSpy: UITableView {
     var dequeueReusableCellParametersList = [String]()
+    var stubbedDequeueReusableCellResult: UITableViewCell?
     override func dequeueReusableCell(withIdentifier identifier: String) -> UITableViewCell? {
         dequeueReusableCellParametersList.append(identifier)
-        return super.dequeueReusableCell(withIdentifier: identifier)
+        return stubbedDequeueReusableCellResult
     }
 }
