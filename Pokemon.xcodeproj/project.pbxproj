@@ -37,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B577E6012971C18D005216E3 /* PokemonListFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonListFeature; sourceTree = "<group>"; };
 		B5892B0729715A0F00355305 /* Pokemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5892B0A29715A0F00355305 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B5892B0C29715A0F00355305 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -89,6 +90,7 @@
 		B5892AFE29715A0F00355305 = {
 			isa = PBXGroup;
 			children = (
+				B577E6012971C18D005216E3 /* PokemonListFeature */,
 				B58FCFA22971603E003FCCD1 /* PokemonAPI */,
 				B5892B0929715A0F00355305 /* Pokemon */,
 				B5892B2029715A1000355305 /* PokemonTests */,
