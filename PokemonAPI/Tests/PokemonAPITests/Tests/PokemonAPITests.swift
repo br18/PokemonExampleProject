@@ -36,13 +36,13 @@ public class PokemonAPI {
     }
 
     public func fetchPokemonDetails(id: Int) async throws -> PokemonDetails {
-        _ = try await httpClient.get(url: URL.any()) as RemotePokemon
+        _ = try await httpClient.get(url: createPokemonDetailsURL(id: id)) as RemotePokemon
         return PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
     }
 
     private func createPokemonDetailsURL(id: Int) -> URL {
         var (components, path) = baseURLDetails
-        components.path = path + "pokemon/\(id)"
+        components.path = path + "/pokemon/\(id)"
         return components.url!
     }
 
@@ -187,9 +187,27 @@ final class PokemonAPITests: XCTestCase {
         let httpResult: Result<RemotePokemon, Error> = .failure(MockError.mock1)
         let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
 
-        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+        let sut = createSut(responseType: RemotePokemon.self, httpClient: httpClient)
 
         await XCTAssertThrowsErrorAsync(try await sut.fetchPokemonDetails(id: 0), "Fetch pokemon details")
+    }
+
+    func test_fetchPokemonDetails_givenId_requestsPokemonDetailsURLWithId() async {
+        let id1 = 64
+        let id2 = 654
+        let httpResult: Result<RemotePokemon, Error> = .failure(MockError.mock1)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: RemotePokemon.self, httpClient: httpClient)
+
+        _ = try? await sut.fetchPokemonDetails(id: id1)
+        _ = try? await sut.fetchPokemonDetails(id: id2)
+
+        let urlComponents1 = URLComponents(url: httpClient.getParametersList.first!, resolvingAgainstBaseURL: true)
+        let urlComponents2 = URLComponents(url: httpClient.getParametersList.last!, resolvingAgainstBaseURL: true)
+
+        XCTAssertEqual(urlComponents1, URLComponents(string: "\(fetchPokemonListBaseURL)/\(id1)"))
+        XCTAssertEqual(urlComponents2, URLComponents(string: "\(fetchPokemonListBaseURL)/\(id2)"))
     }
 
 //    func test_fetchPokemonDetails_whenHTTPClientIsSuccessfulWithRemotePokemon_mapsPokemonToDetails() async {
