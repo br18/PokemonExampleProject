@@ -61,7 +61,7 @@ final class PokemonAPIClientTests: XCTestCase {
 
         let result = try await sut.fetchPokemonList(limit: 5)
 
-        XCTAssertEqual(result.totalCount, totalCountc)
+        XCTAssertEqual(result.totalCount, totalCount)
         XCTAssertEqual(result.pokemon.count, 2)
         XCTAssertEqual(result.pokemon.first?.id, id1)
         XCTAssertEqual(result.pokemon.first?.name, resourceListResults.first?.name)
