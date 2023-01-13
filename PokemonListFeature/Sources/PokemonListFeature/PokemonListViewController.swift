@@ -39,12 +39,7 @@ class PokemonListViewController<VM: ViewModel>:
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        tableView.register(UINib(nibName: cellName, bundle: Bundle.module),
-                           forCellReuseIdentifier: cellName)
-
-        tableView.dataSource = dataSource
-        tableView.delegate = self
+        setupTableView()
 
         viewModel.statePublisher.sink { [weak self] state in
             self?.loadingView.isHidden = !state.isLoading
@@ -63,6 +58,14 @@ class PokemonListViewController<VM: ViewModel>:
         }
         let pokemonId = items[row].id
         viewModel.perform(.viewDetails(id: pokemonId))
+    }
+
+    private func setupTableView() {
+        tableView.register(UINib(nibName: cellName, bundle: Bundle.module),
+                           forCellReuseIdentifier: cellName)
+
+        tableView.dataSource = dataSource
+        tableView.delegate = self
     }
 }
 
