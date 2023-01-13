@@ -1,5 +1,5 @@
 //
-//  PokemonAPITests.swift
+//  PokemonAPIClientTests.swift
 //  
 //
 //  Created by Ben on 13/01/2023.
@@ -8,95 +8,7 @@
 import XCTest
 @testable import PokemonAPI
 
-public struct Pokemon {
-    let id: Int
-    let name: String
-}
-
-public struct PokemonDetails {
-    let name: String
-    let image: URL
-    let heightInDecimeters: Int
-    let weightInHectograms: Int
-    let types: [String]
-}
-
-public class PokemonAPI {
-    private let httpClient: HTTPClient
-
-    private let baseURLString = "https://pokeapi.co/api/v2"
-
-    public init(httpClient: HTTPClient) {
-        self.httpClient = httpClient
-    }
-
-    public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> [Pokemon] {
-        let resourceList: NamedAPIResourceList = try await httpClient.get(url: createFetchPokemonListURL(offset: offset, limit: limit))
-        return try resourceList.toPokemonList()
-    }
-
-    public func fetchPokemonDetails(id: Int) async throws -> PokemonDetails {
-        let remotePokemon: RemotePokemon = try await httpClient.get(url: createPokemonDetailsURL(id: id))
-        return remotePokemon.toPokemonDetails()
-    }
-
-    private func createPokemonDetailsURL(id: Int) -> URL {
-        var (components, path) = baseURLDetails
-        components.path = path + "/pokemon/\(id)"
-        return components.url!
-    }
-
-    private func createFetchPokemonListURL(offset: Int, limit: Int) -> URL {
-        var (components, path) = baseURLDetails
-        components.path = path + "/pokemon"
-        components.queryItems = [
-            URLQueryItem(name: "offset", value: String(offset)),
-            URLQueryItem(name: "limit", value: String(limit))
-        ]
-        return components.url!
-    }
-
-    private var baseURLDetails: (components: URLComponents, path: String) {
-        let baseURL = URL(string: baseURLString)!
-        var components = URLComponents()
-        components.scheme = baseURL.scheme
-        components.host = baseURL.host
-        return (components, baseURL.path)
-    }
-}
-
-private extension RemotePokemon {
-    func toPokemonDetails() -> PokemonDetails {
-        PokemonDetails(name: name,
-                       image: sprites.frontDefault,
-                       heightInDecimeters: heightInDecimeters,
-                       weightInHectograms: weightInHectograms,
-                       types: types.map { $0.type.name })
-    }
-}
-
-private extension NamedAPIResourceList {
-    private enum Error: Swift.Error {
-        case noPathComponents
-        case lastPathComponentNotInt
-    }
-
-    func toPokemonList() throws -> [Pokemon] {
-        try results.map { resource in
-            guard let lastPathComponent = resource.url.pathComponents.last else {
-                throw Error.noPathComponents
-            }
-
-            guard let id = Int(lastPathComponent) else {
-                throw Error.lastPathComponentNotInt
-            }
-
-            return Pokemon(id: id, name: resource.name)
-        }
-    }
-}
-
-final class PokemonAPITests: XCTestCase {
+final class PokemonAPIClientTests: XCTestCase {
 
     private let fetchPokemonListBaseURL = "https://pokeapi.co/api/v2/pokemon"
 
@@ -239,8 +151,8 @@ final class PokemonAPITests: XCTestCase {
     }
 
     private func createSut<U: Decodable>(responseType: U.Type,
-                                         httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPI {
-        let sut = PokemonAPI(httpClient: httpClient)
+                                         httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPIClient {
+        let sut = PokemonAPIClient(httpClient: httpClient)
         trackForMemoryLeaks(sut)
         return sut
     }
