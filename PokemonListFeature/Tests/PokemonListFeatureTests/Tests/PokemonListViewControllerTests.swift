@@ -10,6 +10,7 @@ import Combine
 @testable import PokemonListFeature
 
 final class PokemonListViewControllerTests: XCTestCase {
+    private typealias DataSourceType = ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>
     private typealias TestViewModel = StubViewModel<PokemonListViewState, PokemonListViewAction>
 
     private let loadedState = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello"),
@@ -88,7 +89,23 @@ final class PokemonListViewControllerTests: XCTestCase {
         let viewModel = TestViewModel(initialState: loadingState)
         let sut = makeSut(viewModel: viewModel)
 
-        XCTAssertTrue(sut.tableView.dataSource is ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>)
+        XCTAssertTrue(sut.tableView.dataSource is DataSourceType)
+    }
+
+    func test_onViewLoaded_givenInitialStateHasItems_createsItemsAsRowsInTableView() {
+        let viewModel = TestViewModel(initialState: loadedState)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 2)
+    }
+
+    func test_whenStateItemsChange_updatesItemsInDataSource() {
+        let viewModel = TestViewModel(initialState: loadedState)
+        let sut = makeSut(viewModel: viewModel)
+
+        viewModel.state = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello")])
+
+        XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)
     }
     
     private func makeSut(viewModel: TestViewModel) -> PokemonListViewController<TestViewModel> {

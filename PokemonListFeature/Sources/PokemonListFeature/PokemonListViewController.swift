@@ -24,7 +24,6 @@ class PokemonListViewController<VM: ViewModel>:
        }
     }()
 
-
     private var cancellables = Set<AnyCancellable>()
 
     init(viewModel: VM) {
@@ -49,6 +48,7 @@ class PokemonListViewController<VM: ViewModel>:
 
         viewModel.statePublisher.sink { [weak self] state in
             self?.loadingView.isHidden = !state.isLoading
+            self?.dataSource.update(newItems: state.items)
         }
         .store(in: &cancellables)
     }
