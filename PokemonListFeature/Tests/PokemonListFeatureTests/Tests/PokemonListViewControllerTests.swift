@@ -77,10 +77,18 @@ final class PokemonListViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.loadingView.isHidden, true)
     }
 
+    func test_onViewLoaded_tableViewDelegateIsSut() {
+        let viewModel = TestViewModel(initialState: loadingState)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertTrue(sut.tableView.delegate === sut)
+    }
+
+    func test_onViewLoaded_tableViewDataSourceIsArrayTableViewDataSourceWithPokemonCell() {
+
+    }
     private func makeSut(viewModel: TestViewModel) -> PokemonListViewController<TestViewModel> {
         let sut = PokemonListViewController(viewModel: viewModel)
-        //sut.loadViewIfNeeded()
-
         let _ = sut.view
         return sut
     }

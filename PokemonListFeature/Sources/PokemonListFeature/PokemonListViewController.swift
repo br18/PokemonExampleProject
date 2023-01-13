@@ -12,9 +12,18 @@ class PokemonListViewController<VM: ViewModel>:
     UIViewController, UITableViewDelegate where VM.State == PokemonListViewState,
                                                 VM.Action == PokemonListViewAction {
 
+    private let cellName = "PokemonListTableViewCell"
     @IBOutlet var tableView: UITableView!
     @IBOutlet var loadingView: UIView!
     private let viewModel: VM
+
+    private typealias DataSource = ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>
+    private lazy var dataSource: DataSource = {
+        return DataSource (items: [], cellIdentifier: cellName) { item, cellView in
+           cellView.nameLabel.text = item.name
+       }
+    }()
+
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -31,9 +40,17 @@ class PokemonListViewController<VM: ViewModel>:
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        tableView.register(UINib(nibName: cellName, bundle: Bundle.module),
+                           forCellReuseIdentifier: cellName)
+
+        //tableView.dataSource = dataSource
+        tableView.delegate = self
+
         viewModel.statePublisher.sink { [weak self] state in
             self?.loadingView.isHidden = !state.isLoading
-        }.store(in: &cancellables)
+        }
+        .store(in: &cancellables)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
