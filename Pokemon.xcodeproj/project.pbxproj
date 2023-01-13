@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B577E6002971BCF7005216E3 /* PokemonAPI in Frameworks */ = {isa = PBXBuildFile; productRef = B577E5FF2971BCF7005216E3 /* PokemonAPI */; };
 		B5892B0B29715A0F00355305 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0A29715A0F00355305 /* AppDelegate.swift */; };
 		B5892B0D29715A0F00355305 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0C29715A0F00355305 /* SceneDelegate.swift */; };
 		B5892B0F29715A0F00355305 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0E29715A0F00355305 /* ViewController.swift */; };
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B577E6002971BCF7005216E3 /* PokemonAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,6 +79,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B577E5FE2971BCF7005216E3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B5892AFE29715A0F00355305 = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +94,7 @@
 				B5892B2029715A1000355305 /* PokemonTests */,
 				B5892B2A29715A1000355305 /* PokemonUITests */,
 				B5892B0829715A0F00355305 /* Products */,
+				B577E5FE2971BCF7005216E3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -145,6 +155,9 @@
 			dependencies = (
 			);
 			name = Pokemon;
+			packageProductDependencies = (
+				B577E5FF2971BCF7005216E3 /* PokemonAPI */,
+			);
 			productName = Pokemon;
 			productReference = B5892B0729715A0F00355305 /* Pokemon.app */;
 			productType = "com.apple.product-type.application";
@@ -598,6 +611,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B577E5FF2971BCF7005216E3 /* PokemonAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PokemonAPI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B5892AFF29715A0F00355305 /* Project object */;
 }
