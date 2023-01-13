@@ -31,8 +31,8 @@ public class PokemonAPI {
     }
 
     public func fetchPokemonList(offset: Int = 0, limit: Int) async throws -> [Pokemon] {
-        _ = try await httpClient.get(url: createFetchPokemonListURL(offset: offset, limit: limit)) as NamedAPIResourceList
-        return []
+        let resourceList: NamedAPIResourceList = try await httpClient.get(url: createFetchPokemonListURL(offset: offset, limit: limit))
+        return try resourceList.toPokemonList()
     }
 
     public func fetchPokemonDetails(id: String) async throws -> PokemonDetails {
@@ -120,11 +120,69 @@ final class PokemonAPITests: XCTestCase {
         XCTAssertEqual(urlComponents2, URLComponents(string: "\(fetchPokemonListBaseURL)?offset=\(offset2)&limit=\(limit2)"))
     }
 
+    func test_fetchPokemonList_whenHTTPClientReturnsValidResponseWithURLEndingInInt_returnsMappedResponseToPokemonWithURLEndingsAsIds() async throws {
+        let id1 = 156
+        let id2 = 221
+        let resourceListResults = [NamedAPIResource(name: "bulbasaur",url: URL.pokemonURL(id: String(id1))),
+                                   NamedAPIResource(name: "ivysaur", url: URL.pokemonURL(id: String(id2)))]
+        let resourceList = NamedAPIResourceList(count: 2,
+                                                results: resourceListResults)
+
+        let httpResult: Result<NamedAPIResourceList, Error> = .success(resourceList)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+        let result = try await sut.fetchPokemonList(limit: 5)
+
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result.first?.id, id1)
+        XCTAssertEqual(result.first?.name, resourceListResults.first?.name)
+        XCTAssertEqual(result.last?.id, id2)
+        XCTAssertEqual(result.last?.name, resourceListResults.last?.name)
+    }
+
+    func test_fetchPokemonList_whenHTTPClientReturnsValidResponseWithURLThatHasNoPathComponents_throwsError() async {
+        let resourceListResults = [NamedAPIResource(name: "bulbasaur", url: URL(string: "https://")!)]
+        let resourceList = NamedAPIResourceList(count: 2,
+                                                results: resourceListResults)
+
+        let httpResult: Result<NamedAPIResourceList, Error> = .success(resourceList)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+
+        await XCTAssertThrowsErrorAsync(_ = try await sut.fetchPokemonList(limit: 5), "Fetch pokemon list")
+    }
+
+
+    func test_fetchPokemonList_whenHTTPClientReturnsValidResponseWithURLEndingInString_throwsError() async {
+        let resourceListResults = [NamedAPIResource(name: "bulbasaur", url: URL.pokemonURL(id: "Hello"))]
+        let resourceList = NamedAPIResourceList(count: 2,
+                                                results: resourceListResults)
+
+        let httpResult: Result<NamedAPIResourceList, Error> = .success(resourceList)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+
+        await XCTAssertThrowsErrorAsync(_ = try await sut.fetchPokemonList(limit: 5), "Fetch pokemon list")
+    }
+
     private func createSut<U: Decodable>(responseType: U.Type,
                                          httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPI {
         let sut = PokemonAPI(httpClient: httpClient)
         trackForMemoryLeaks(sut)
         return sut
+    }
+}
+
+private extension URL {
+    static func pokemonURL(id: String) -> URL {
+        let urlString = "https://pokeapi.co/api/v2/pokemon/\(id)/"
+        return URL(string: urlString)!
     }
 }
 
