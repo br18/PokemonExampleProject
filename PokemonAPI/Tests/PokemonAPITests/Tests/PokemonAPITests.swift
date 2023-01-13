@@ -40,8 +40,10 @@ public class PokemonAPI {
         return PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
     }
 
-    private func createPokemonDetailsURL(id: Int) {
-
+    private func createPokemonDetailsURL(id: Int) -> URL {
+        var (components, path) = baseURLDetails
+        components.path = path + "pokemon/\(id)"
+        return components.url!
     }
 
     private func createFetchPokemonListURL(offset: Int, limit: Int) -> URL {
