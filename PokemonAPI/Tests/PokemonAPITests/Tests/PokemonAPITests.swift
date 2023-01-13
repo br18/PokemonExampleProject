@@ -35,8 +35,9 @@ public class PokemonAPI {
         return try resourceList.toPokemonList()
     }
 
-    public func fetchPokemonDetails(id: String) async throws -> PokemonDetails {
-        PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
+    public func fetchPokemonDetails(id: Int) async throws -> PokemonDetails {
+        _ = try await httpClient.get(url: URL.any()) as RemotePokemon
+        return PokemonDetails(name: "", image: URL.any(), heightInDecimeters: 0, weightInHectograms: 0, types: [])
     }
 
     private func createFetchPokemonListURL(offset: Int, limit: Int) -> URL {
@@ -170,6 +171,18 @@ final class PokemonAPITests: XCTestCase {
 
         await XCTAssertThrowsErrorAsync(_ = try await sut.fetchPokemonList(limit: 5), "Fetch pokemon list")
     }
+
+    func test_fetchPokemonDetails_whenHTTPClientThrowsError_throwsError() async {
+        let httpResult: Result<RemotePokemon, Error> = .failure(MockError.mock1)
+        let httpClient = StubHTTPClient(stubbedGetResult: httpResult)
+
+        let sut = createSut(responseType: NamedAPIResourceList.self, httpClient: httpClient)
+
+        await XCTAssertThrowsErrorAsync(try await sut.fetchPokemonDetails(id: 0), "Fetch pokemon details")
+    }
+
+//    func test_fetchPokemonDetails_whenHTTPClientIsSuccessfulWithRemotePokemon_mapsPokemonToDetails() async {
+//    }
 
     private func createSut<U: Decodable>(responseType: U.Type,
                                          httpClient: HTTPClient = StubHTTPClient(stubbedGetResult: Result<U, Error>.failure(MockError.mock1))) -> PokemonAPI {
