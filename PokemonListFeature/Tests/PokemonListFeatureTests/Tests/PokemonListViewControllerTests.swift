@@ -97,6 +97,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         let viewModel = TestViewModel(initialState: loadedState)
         let sut = makeSut(viewModel: viewModel)
 
+        XCTAssertEqual(sut.tableView.visibleCells.count, 2)
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 2)
         XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
         XCTAssertEqual(getCellNameText(sut: sut, row: 1), viewModel.state.items.last?.name)
@@ -108,6 +109,8 @@ final class PokemonListViewControllerTests: XCTestCase {
 
         viewModel.state = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello")])
 
+
+        XCTAssertEqual(sut.tableView.visibleCells.count, 1)
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)
         XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
     }
