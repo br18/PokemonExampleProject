@@ -11,31 +11,34 @@ import Combine
 class PokemonListViewController<VM: ViewModel>:
     UIViewController, UITableViewDelegate where VM.State == PokemonListViewState,
                                                 VM.Action == PokemonListViewAction {
-
-    private let cellName = "PokemonListTableViewCell"
     @IBOutlet var tableView: UITableView!
-    @IBOutlet var loadingView: UIView!
     private let viewModel: VM
 
-    private typealias DataSource = ArrayTableViewDataSource<PokemonListViewItem>
+    enum PokemonTableViewItem {
+        case loading
+        case pokemon(item: PokemonListViewItem)
+    }
+
+    private typealias DataSource = ArrayTableViewDataSource<PokemonTableViewItem>
 
     private lazy var dataSource: DataSource = {
         return DataSource (items: []) { tableView, item in
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
-                return UITableViewCell()
+            let cell: UITableViewCell?
+            switch item {
+            case .loading:
+                cell = Self.loadingCell(in: tableView)
+            case .pokemon(item: let item):
+                cell = Self.pokemonCell(item: item, in: tableView)
             }
-            cell.nameLabel.text = item.name
-            return cell
-       }
+            return cell ?? UITableViewCell()
+        }
     }()
 
     private var cancellables = Set<AnyCancellable>()
 
     init(viewModel: VM) {
         self.viewModel = viewModel
-        super.init(nibName: "PokemonListViewController",
-                   bundle: Bundle.module)
-
+        super.init(nibName: "PokemonListViewController", bundle: Bundle.module)
     }
 
     required init?(coder: NSCoder) {
@@ -45,14 +48,7 @@ class PokemonListViewController<VM: ViewModel>:
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
-
-        viewModel.statePublisher.sink { [weak self] state in
-            self?.loadingView.isHidden = !state.isLoading
-            self?.dataSource.update(newItems: state.items)
-            self?.tableView.reloadData()
-        }
-        .store(in: &cancellables)
-
+        bindViewModel()
         viewModel.perform(.loadData)
     }
 
@@ -66,12 +62,36 @@ class PokemonListViewController<VM: ViewModel>:
         viewModel.perform(.viewDetails(id: pokemonId))
     }
 
-    private func setupTableView() {
-        tableView.register(UINib(nibName: cellName, bundle: Bundle.module),
-                           forCellReuseIdentifier: cellName)
+    private func bindViewModel() {
+        viewModel.statePublisher.sink { [weak self] state in
+            var tableViewItems: [PokemonTableViewItem] = state.items.map{ .pokemon(item: $0) }
+            if state.isLoading {
+                tableViewItems.append(.loading)
+            }
+            self?.dataSource.update(newItems: tableViewItems)
+            self?.tableView.reloadData()
+        }
+        .store(in: &cancellables)
+    }
 
+    private func setupTableView() {
+        tableView.registerCellWithNib(type: PokemonListTableViewCell.self)
+        tableView.registerCellWithNib(type: LoadingTableViewCell.self)
         tableView.dataSource = dataSource
         tableView.delegate = self
+    }
+
+    private static func loadingCell(in tableView: UITableView) -> UITableViewCell? {
+        tableView.dequeueReusableCell(withIdentifier: String(describing: LoadingTableViewCell.self))
+    }
+
+    private static func pokemonCell(item: PokemonListViewItem, in tableView: UITableView) -> UITableViewCell? {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
+            return nil
+        }
+
+        cell.nameLabel.text = item.name
+        return cell
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -81,3 +101,9 @@ class PokemonListViewController<VM: ViewModel>:
 }
 
 
+private extension UITableView {
+    func registerCellWithNib(type: UITableViewCell.Type) {
+        let name = String(describing: type)
+        register(UINib(nibName: name, bundle: Bundle.module), forCellReuseIdentifier: name)
+    }
+}
