@@ -23,7 +23,6 @@ final class PokemonListViewControllerTests: XCTestCase {
     private let loadingStateWithoutItems = PokemonListViewState(dataFetchState: .loading, items: [])
     private lazy var loadingStateWithItems = PokemonListViewState(dataFetchState: .loading, items: items)
     private let loadedStateWithoutItems = PokemonListViewState(dataFetchState: .loaded, items: [])
-    
 
     func test_whenTableViewRowInPokemonRangeSelected_performsViewDetailsForPokemonItemAtRow() {
         let viewModel = TestViewModel(initialState: loadedStateWithItems)
@@ -34,7 +33,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: 0, section: 1) as IndexPath)
 
         XCTAssertEqual(viewModel.performActionParameters.count, 3)
-        XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
+        XCTAssertEqual(viewModel.performActionParameters.first, .loadPokemon)
         XCTAssertEqual(viewModel.performActionParameters[1], .viewDetails(id: loadedStateWithItems.items[1].id))
         XCTAssertEqual(viewModel.performActionParameters.last, .viewDetails(id: loadedStateWithItems.items[0].id))
     }
@@ -47,7 +46,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: -1, section: 0) as IndexPath)
         sut.tableView(UITableView(), didSelectRowAt: NSIndexPath(row: 2, section: 0) as IndexPath)
 
-        XCTAssertEqual(viewModel.performActionParameters, [.loadData])
+        XCTAssertEqual(viewModel.performActionParameters, [.loadPokemon])
     }
 
     func test_whenStateIsLoading_loadingViewIsShown() {
@@ -142,7 +141,48 @@ final class PokemonListViewControllerTests: XCTestCase {
         let _ = makeSut(viewModel: viewModel)
 
         XCTAssertEqual(viewModel.performActionParameters.count, 1)
-        XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
+        XCTAssertEqual(viewModel.performActionParameters.first, .loadPokemon)
+    }
+
+    func test_onViewLoaded_whenStateHasErrorAndNoItems_showsErrorAsOnlyCell() {
+        let state = PokemonListViewState(dataFetchState: .error, items: [])
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(sut.tableView.visibleCells.count, 1)
+        XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)
+        XCTAssertNotNil(errorCell(sut: sut, row: 0))
+    }
+
+    func test_onViewLoaded_whenStateHasErrorAndItems_showsErrorBeneathCells() {
+        let state = PokemonListViewState(dataFetchState: .error, items: items)
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        let itemCount = items.count + 1
+        XCTAssertEqual(sut.tableView.visibleCells.count, itemCount)
+        XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), itemCount)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 1), viewModel.state.items.last?.name)
+        XCTAssertNotNil(errorCell(sut: sut, row: 2))
+    }
+
+    func test_onViewLoaded_whenStateHasErrorAndRetryTapped_tellsViewModelToLoadPokemon() {
+        let state = PokemonListViewState(dataFetchState: .error, items: [])
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        guard let errorCell = errorCell(sut: sut, row: 0) else {
+            XCTFail("Error cell not found")
+            return
+        }
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        errorCell.retryTapped(self)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 2)
+        XCTAssertEqual(viewModel.performActionParameters.last, .loadPokemon)
     }
 
     private func hasLoadingCell(sut: SutType, row: Int) -> Bool {
@@ -155,6 +195,10 @@ final class PokemonListViewControllerTests: XCTestCase {
         }
         return cell.nameLabel.text
     }
+
+    private func errorCell(sut: SutType, row: Int) -> ErrorTableViewCell? {
+        return sut.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? ErrorTableViewCell
+    }
     
     private func makeSut(viewModel: TestViewModel) -> SutType {
         let sut = PokemonListViewController(viewModel: viewModel)
@@ -166,9 +210,7 @@ final class PokemonListViewControllerTests: XCTestCase {
 extension PokemonListViewAction: Equatable {
     public static func == (lhs: PokemonListViewAction, rhs: PokemonListViewAction) -> Bool {
         switch (lhs, rhs) {
-        case (.loadData, .loadData):
-            return true
-        case (.loadMoreItems, .loadMoreItems):
+        case (.loadPokemon, .loadPokemon):
             return true
         case (.viewDetails(let lhsId), .viewDetails(let rhsId)):
             return lhsId == rhsId

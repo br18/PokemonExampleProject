@@ -28,7 +28,6 @@ struct PokemonListViewState {
 // MARK: - View Output - Actions
 
 enum PokemonListViewAction {
-    case loadData
-    case loadMoreItems
+    case loadPokemon
     case viewDetails(id: Int)
 }

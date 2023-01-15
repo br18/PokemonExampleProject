@@ -9,6 +9,7 @@ import UIKit
 import Combine
 
 enum PokemonTableViewItem {
+    case error
     case loading
     case pokemon(item: PokemonListViewItem)
 }
@@ -18,7 +19,11 @@ class PokemonListViewController<VM: ViewModel>:
                                                 VM.Action == PokemonListViewAction {
     @IBOutlet var tableView: UITableView!
     private let viewModel: VM
-    private lazy var dataSource: PokemonListDataSourceFactory.DataSource = PokemonListDataSourceFactory.createDataSource()
+    private lazy var dataSource: PokemonListDataSourceFactory.DataSource =  {
+        PokemonListDataSourceFactory.createDataSource(onErrorRetry: { [weak self] in
+            self?.viewModel.perform(.loadPokemon)
+        })
+    }()
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -35,7 +40,7 @@ class PokemonListViewController<VM: ViewModel>:
         super.viewDidLoad()
         setupTableView()
         bindViewModel()
-        viewModel.perform(.loadData)
+        viewModel.perform(.loadPokemon)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -58,7 +63,7 @@ class PokemonListViewController<VM: ViewModel>:
             case .loaded:
                 break
             case .error:
-                break
+                tableViewItems.append(.error)
             }
 
             self?.dataSource.update(newItems: tableViewItems)
@@ -68,6 +73,7 @@ class PokemonListViewController<VM: ViewModel>:
     }
 
     private func setupTableView() {
+        tableView.registerCellWithNib(type: ErrorTableViewCell.self)
         tableView.registerCellWithNib(type: PokemonListTableViewCell.self)
         tableView.registerCellWithNib(type: LoadingTableViewCell.self)
         tableView.dataSource = dataSource
@@ -86,12 +92,17 @@ private extension UITableView {
         let name = String(describing: type)
         register(UINib(nibName: name, bundle: Bundle.module), forCellReuseIdentifier: name)
     }
+
+    func dequeueCell<T: UITableViewCell>() -> T? {
+        let name = String(describing: T.self)
+        return dequeueReusableCell(withIdentifier: name) as? T
+    }
 }
 
 private class PokemonListDataSourceFactory {
     typealias DataSource = ArrayTableViewDataSource<PokemonTableViewItem>
 
-    static func createDataSource() -> DataSource {
+    static func createDataSource(onErrorRetry: @escaping () -> Void) -> DataSource {
         return DataSource (items: []) { tableView, item in
             let cell: UITableViewCell?
             switch item {
@@ -99,21 +110,31 @@ private class PokemonListDataSourceFactory {
                 cell = Self.loadingCell(in: tableView)
             case .pokemon(item: let item):
                 cell = Self.pokemonCell(item: item, in: tableView)
+            case .error:
+                cell = Self.errorCell(in: tableView, onRetry: onErrorRetry)
             }
             return cell ?? UITableViewCell()
         }
     }
 
-    private static func loadingCell(in tableView: UITableView) -> UITableViewCell? {
-        tableView.dequeueReusableCell(withIdentifier: String(describing: LoadingTableViewCell.self))
+    private static func loadingCell(in tableView: UITableView) -> LoadingTableViewCell? {
+        tableView.dequeueCell()
     }
 
     private static func pokemonCell(item: PokemonListViewItem, in tableView: UITableView) -> UITableViewCell? {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
+        guard let cell: PokemonListTableViewCell = tableView.dequeueCell() else {
             return nil
         }
 
         cell.nameLabel.text = item.name
+        return cell
+    }
+
+    private static func errorCell(in tableView: UITableView, onRetry: @escaping () -> Void) -> UITableViewCell? {
+        guard let cell: ErrorTableViewCell = tableView.dequeueCell() else {
+            return nil
+        }
+        cell.onRetry = onRetry
         return cell
     }
 }
