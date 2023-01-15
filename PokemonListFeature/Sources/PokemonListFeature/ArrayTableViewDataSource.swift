@@ -8,17 +8,14 @@
 import Foundation
 import UIKit
 
-class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITableViewDataSource {
+class ArrayTableViewDataSource<Item>: NSObject, UITableViewDataSource {
     private var items: [Item]
-    private let cellIdentifier: String
-    private let populateCellView: (Item, CellView) -> Void
+    private let cellFactory: (UITableView, Item) -> UITableViewCell
 
     init(items: [Item] = [],
-         cellIdentifier: String,
-         populateCellView: @escaping (Item, CellView) -> Void) {
+         cellFactory: @escaping (UITableView, Item) -> UITableViewCell) {
         self.items = items
-        self.cellIdentifier = cellIdentifier
-        self.populateCellView = populateCellView
+        self.cellFactory = cellFactory
     }
 
     func update(newItems: [Item]) {
@@ -34,12 +31,6 @@ class ArrayTableViewDataSource<Item, CellView: UITableViewCell>: NSObject, UITab
             return UITableViewCell()
         }
 
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier) as? CellView else {
-            return UITableViewCell()
-        }
-
-        populateCellView(items[indexPath.row], cell)
-
-        return cell
+        return cellFactory(tableView, items[indexPath.row])
     }
 }

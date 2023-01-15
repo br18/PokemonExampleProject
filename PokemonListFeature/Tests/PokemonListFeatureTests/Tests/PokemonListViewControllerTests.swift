@@ -10,7 +10,7 @@ import Combine
 @testable import PokemonListFeature
 
 final class PokemonListViewControllerTests: XCTestCase {
-    private typealias DataSourceType = ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>
+    private typealias DataSourceType = ArrayTableViewDataSource<PokemonListViewItem>
     private typealias TestViewModel = StubViewModel<PokemonListViewState, PokemonListViewAction>
 
     private let loadedState = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello"),

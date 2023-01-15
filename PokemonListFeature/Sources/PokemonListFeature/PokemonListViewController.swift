@@ -17,10 +17,15 @@ class PokemonListViewController<VM: ViewModel>:
     @IBOutlet var loadingView: UIView!
     private let viewModel: VM
 
-    private typealias DataSource = ArrayTableViewDataSource<PokemonListViewItem, PokemonListTableViewCell>
+    private typealias DataSource = ArrayTableViewDataSource<PokemonListViewItem>
+
     private lazy var dataSource: DataSource = {
-        return DataSource (items: [], cellIdentifier: cellName) { item, cellView in
-           cellView.nameLabel.text = item.name
+        return DataSource (items: []) { tableView, item in
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
+                return UITableViewCell()
+            }
+            cell.nameLabel.text = item.name
+            return cell
        }
     }()
 
@@ -67,6 +72,11 @@ class PokemonListViewController<VM: ViewModel>:
 
         tableView.dataSource = dataSource
         tableView.delegate = self
+    }
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+        
     }
 }
 

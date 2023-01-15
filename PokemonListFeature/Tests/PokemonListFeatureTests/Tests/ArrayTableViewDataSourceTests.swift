@@ -34,83 +34,44 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
         XCTAssertEqual(sut.tableView(UITableView(), numberOfRowsInSection: 0), newItems.count)
     }
 
-    func test_cellForRowAtIndexPath_givenInitWithCellIdentifier_dequeuesCellWithIdentifier() {
-        let cellIdentifier = "fwjbfwej"
-        let sut = makeSUT(items: items, cellIdentifier: cellIdentifier)
+    func test_cellForRowAtIndexPath_whenRowIndexOutOfItemsRange_doesNotCallPopulateCellView() {
+        let cellFactorySpy = CellFactorySpy()
+        let tableViewCell = TestTableViewCell()
+        cellFactorySpy.stubbedCellFactoryResult = tableViewCell
 
-        let tableViewSpy = UITableViewSpy()
+        let sut = makeSUT(items: items, cellFactory: cellFactorySpy.cellFactory)
 
-        _ = sut.tableView(tableViewSpy, cellForRowAt: IndexPath(item: 0, section: 0))
-        _ = sut.tableView(tableViewSpy, cellForRowAt: IndexPath(item: 1, section: 0))
-
-        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.count, 2)
-        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.first, cellIdentifier)
-        XCTAssertEqual(tableViewSpy.dequeueReusableCellParametersList.last, cellIdentifier)
-    }
-
-    func test_cellForRowAtIndexPath_whenCellTypeReturnedIsNotTypeForPopulateCellView_doesNotCallPopulateCellView() {
-        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
-        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
-            capturedPopulateCellViewCalls.append((item: item, view: view))
-        }
-
-        let tableView = UITableViewSpy()
-        tableView.stubbedDequeueReusableCellResult = UITableViewCell()
-
-        let sut = makeSUT(items: items, populateCellView: populateCellView)
-
-        _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: 1, section: 0))
-
-        XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
-    }
-
-    func test_cellForRowAtIndexPath_whenExpectedCellTypeReturnedButRowIndexOutOfItemsRange_doesNotCallPopulateCellView() {
-        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
-        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
-            capturedPopulateCellViewCalls.append((item: item, view: view))
-        }
-
-        let tableView = UITableViewSpy()
-        tableView.stubbedDequeueReusableCellResult = TestTableViewCell()
-
-        let sut = makeSUT(items: items, populateCellView: populateCellView)
-
+        let tableView = UITableView()
         _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: -1, section: 0))
         _ = sut.tableView(tableView, cellForRowAt: IndexPath(row: 3, section: 0))
 
-        XCTAssertTrue(capturedPopulateCellViewCalls.isEmpty)
+        XCTAssertTrue(cellFactorySpy.cellFactoryParameters.isEmpty)
     }
 
     func test_cellForRowAtIndexPath_whenExpectedCellTypeReturnedAndIndexInRange_populatesItemAtIndexWithDequeuedCellAndReturnsIt() {
-        var capturedPopulateCellViewCalls = [(item: String, view: TestTableViewCell)]()
-        let populateCellView: (String, TestTableViewCell) -> Void = { item, view in
-            capturedPopulateCellViewCalls.append((item: item, view: view))
-        }
-
-        let tableView = UITableViewSpy()
+        let cellFactorySpy = CellFactorySpy()
         let tableViewCell = TestTableViewCell()
-        tableView.stubbedDequeueReusableCellResult = tableViewCell
+        cellFactorySpy.stubbedCellFactoryResult = tableViewCell
 
-        let sut = makeSUT(items: items, populateCellView: populateCellView)
 
+        let sut = makeSUT(items: items, cellFactory: cellFactorySpy.cellFactory)
+
+        let tableView = UITableView()
         let result1 = sut.tableView(tableView, cellForRowAt: IndexPath(row: 2, section: 0))
         let result2 = sut.tableView(tableView, cellForRowAt: IndexPath(row: 1, section: 0))
 
-        XCTAssertEqual(capturedPopulateCellViewCalls.count, 2)
-        XCTAssertEqual(capturedPopulateCellViewCalls.first?.item, items[2])
-        XCTAssertEqual(capturedPopulateCellViewCalls.first?.view, tableViewCell)
-        XCTAssertEqual(capturedPopulateCellViewCalls.last?.item, items[1])
-        XCTAssertEqual(capturedPopulateCellViewCalls.last?.view, tableViewCell)
+        XCTAssertEqual(cellFactorySpy.cellFactoryParameters.count, 2)
+        XCTAssertEqual(cellFactorySpy.cellFactoryParameters.first?.item, items[2])
+        XCTAssertEqual(cellFactorySpy.cellFactoryParameters.first?.tableView, tableView)
+        XCTAssertEqual(cellFactorySpy.cellFactoryParameters.last?.item, items[1])
+        XCTAssertEqual(cellFactorySpy.cellFactoryParameters.last?.tableView, tableView)
         XCTAssertEqual(result1, tableViewCell)
         XCTAssertEqual(result2, tableViewCell)
     }
 
     private func makeSUT(items: [String] = [],
-                         cellIdentifier: String = "",
-                         populateCellView: @escaping (String, TestTableViewCell) -> Void = { _,_  in } ) -> ArrayTableViewDataSource<String, TestTableViewCell> {
-        ArrayTableViewDataSource(items: items,
-                                 cellIdentifier: cellIdentifier,
-                                 populateCellView: populateCellView)
+                         cellFactory: @escaping (UITableView, String) -> UITableViewCell = { _,_  in UITableViewCell() } ) -> ArrayTableViewDataSource<String> {
+        ArrayTableViewDataSource(items: items, cellFactory: cellFactory)
 
     }
 
@@ -124,5 +85,14 @@ class UITableViewSpy: UITableView {
     override func dequeueReusableCell(withIdentifier identifier: String) -> UITableViewCell? {
         dequeueReusableCellParametersList.append(identifier)
         return stubbedDequeueReusableCellResult
+    }
+}
+
+class CellFactorySpy {
+    var cellFactoryParameters = [(tableView: UITableView, item: String)]()
+    var stubbedCellFactoryResult: UITableViewCell = UITableViewCell()
+    func cellFactory(tableView: UITableView, item: String) -> UITableViewCell {
+        cellFactoryParameters.append((tableView: tableView, item: item))
+        return stubbedCellFactoryResult
     }
 }
