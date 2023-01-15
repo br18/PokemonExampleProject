@@ -19,10 +19,10 @@ final class PokemonListViewControllerTests: XCTestCase {
     private let items = [PokemonListViewItem(id: 56, name: "Hello"),
                          PokemonListViewItem(id: 542, name: "World")]
 
-    private lazy var loadedStateWithItems = PokemonListViewState(isLoading: false, items: items)
-    private let loadingStateWithoutItems = PokemonListViewState(isLoading: true, items: [])
-    private lazy var loadingStateWithItems = PokemonListViewState(isLoading: true, items: items)
-    private let loadedStateWithoutItems = PokemonListViewState(isLoading: false, items: [])
+    private lazy var loadedStateWithItems = PokemonListViewState(dataFetchState: .loaded, items: items)
+    private let loadingStateWithoutItems = PokemonListViewState(dataFetchState: .loading, items: [])
+    private lazy var loadingStateWithItems = PokemonListViewState(dataFetchState: .loading, items: items)
+    private let loadedStateWithoutItems = PokemonListViewState(dataFetchState: .loaded, items: [])
     
 
     func test_whenTableViewRowInPokemonRangeSelected_performsViewDetailsForPokemonItemAtRow() {
@@ -130,8 +130,7 @@ final class PokemonListViewControllerTests: XCTestCase {
         let viewModel = TestViewModel(initialState: loadedStateWithItems)
         let sut = makeSut(viewModel: viewModel)
 
-        viewModel.state = PokemonListViewState(isLoading: false, items: [PokemonListViewItem(id: 56, name: "Hello")])
-
+        viewModel.state = PokemonListViewState(dataFetchState: .loaded, items: [PokemonListViewItem(id: 56, name: "Hello")])
 
         XCTAssertEqual(sut.tableView.visibleCells.count, 1)
         XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 1)

@@ -51,9 +51,16 @@ class PokemonListViewController<VM: ViewModel>:
     private func bindViewModel() {
         viewModel.statePublisher.sink { [weak self] state in
             var tableViewItems: [PokemonTableViewItem] = state.items.map{ .pokemon(item: $0) }
-            if state.isLoading {
+
+            switch state.dataFetchState {
+            case .loading:
                 tableViewItems.append(.loading)
+            case .loaded:
+                break
+            case .error:
+                break
             }
+
             self?.dataSource.update(newItems: tableViewItems)
             self?.tableView.reloadData()
         }

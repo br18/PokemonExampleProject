@@ -14,10 +14,15 @@ struct PokemonListViewItem {
     var name: String
 }
 
+enum PokemonListViewDataFetchState {
+    case loading
+    case loaded
+    case error
+}
+
 struct PokemonListViewState {
-    var isLoading: Bool
+    var dataFetchState: PokemonListViewDataFetchState
     var items: [PokemonListViewItem]
-    var errorMessage: String?
 }
 
 // MARK: - View Output - Actions
