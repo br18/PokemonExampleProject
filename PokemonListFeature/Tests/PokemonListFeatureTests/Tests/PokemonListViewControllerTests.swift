@@ -88,6 +88,20 @@ final class PokemonListViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.tableView.rowCount(), 0)
     }
 
+    func test_whenStateIsLoadingWithItems_showsItemsWithLoadingCellAtTheBottom() {
+        let viewModel = TestViewModel(initialState: loadingStateWithItems)
+
+        let sut = makeSut(viewModel: viewModel)
+
+        let expectedRowCount = items.count + 1
+        XCTAssertEqual(sut.tableView.rowCount(), expectedRowCount)
+        XCTAssertEqual(sut.tableView.visibleCells.count, expectedRowCount)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 0), viewModel.state.items.first?.name)
+        XCTAssertEqual(getCellNameText(sut: sut, row: 1), viewModel.state.items.last?.name)
+        XCTAssertTrue(hasLoadingCell(sut: sut, row: 2))
+    }
+
+
     func test_onViewLoaded_tableViewDelegateIsSut() {
         let viewModel = TestViewModel(initialState: loadingStateWithoutItems)
         let sut = makeSut(viewModel: viewModel)
