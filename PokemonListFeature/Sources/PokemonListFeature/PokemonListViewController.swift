@@ -8,31 +8,17 @@
 import UIKit
 import Combine
 
+enum PokemonTableViewItem {
+    case loading
+    case pokemon(item: PokemonListViewItem)
+}
+
 class PokemonListViewController<VM: ViewModel>:
     UIViewController, UITableViewDelegate where VM.State == PokemonListViewState,
                                                 VM.Action == PokemonListViewAction {
     @IBOutlet var tableView: UITableView!
     private let viewModel: VM
-
-    enum PokemonTableViewItem {
-        case loading
-        case pokemon(item: PokemonListViewItem)
-    }
-
-    private typealias DataSource = ArrayTableViewDataSource<PokemonTableViewItem>
-
-    private lazy var dataSource: DataSource = {
-        return DataSource (items: []) { tableView, item in
-            let cell: UITableViewCell?
-            switch item {
-            case .loading:
-                cell = Self.loadingCell(in: tableView)
-            case .pokemon(item: let item):
-                cell = Self.pokemonCell(item: item, in: tableView)
-            }
-            return cell ?? UITableViewCell()
-        }
-    }()
+    private lazy var dataSource: PokemonListDataSourceFactory.DataSource = PokemonListDataSourceFactory.createDataSource()
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -81,19 +67,6 @@ class PokemonListViewController<VM: ViewModel>:
         tableView.delegate = self
     }
 
-    private static func loadingCell(in tableView: UITableView) -> UITableViewCell? {
-        tableView.dequeueReusableCell(withIdentifier: String(describing: LoadingTableViewCell.self))
-    }
-
-    private static func pokemonCell(item: PokemonListViewItem, in tableView: UITableView) -> UITableViewCell? {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
-            return nil
-        }
-
-        cell.nameLabel.text = item.name
-        return cell
-    }
-
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
         
@@ -105,5 +78,35 @@ private extension UITableView {
     func registerCellWithNib(type: UITableViewCell.Type) {
         let name = String(describing: type)
         register(UINib(nibName: name, bundle: Bundle.module), forCellReuseIdentifier: name)
+    }
+}
+
+private class PokemonListDataSourceFactory {
+    typealias DataSource = ArrayTableViewDataSource<PokemonTableViewItem>
+
+    static func createDataSource() -> DataSource {
+        return DataSource (items: []) { tableView, item in
+            let cell: UITableViewCell?
+            switch item {
+            case .loading:
+                cell = Self.loadingCell(in: tableView)
+            case .pokemon(item: let item):
+                cell = Self.pokemonCell(item: item, in: tableView)
+            }
+            return cell ?? UITableViewCell()
+        }
+    }
+
+    private static func loadingCell(in tableView: UITableView) -> UITableViewCell? {
+        tableView.dequeueReusableCell(withIdentifier: String(describing: LoadingTableViewCell.self))
+    }
+
+    private static func pokemonCell(item: PokemonListViewItem, in tableView: UITableView) -> UITableViewCell? {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: PokemonListTableViewCell.self)) as? PokemonListTableViewCell else {
+            return nil
+        }
+
+        cell.nameLabel.text = item.name
+        return cell
     }
 }

@@ -13,7 +13,7 @@ final class PokemonListViewControllerTests: XCTestCase {
 
     private typealias SutType = PokemonListViewController<TestViewModel>
 
-    private typealias DataSourceType = ArrayTableViewDataSource<SutType.PokemonTableViewItem>
+    private typealias DataSourceType = ArrayTableViewDataSource<PokemonTableViewItem>
     private typealias TestViewModel = StubViewModel<PokemonListViewState, PokemonListViewAction>
 
     private let items = [PokemonListViewItem(id: 56, name: "Hello"),
