@@ -185,6 +185,64 @@ final class PokemonListViewControllerTests: XCTestCase {
         XCTAssertEqual(viewModel.performActionParameters.last, .loadPokemon)
     }
 
+
+    func test_whenWillDisplayNotLastCell_andStateLoaded_doesNotRequestLoadPokemon() {
+        let itemCount = 100
+        let manyItems = Array(repeating: items[0], count: itemCount)
+        let state = PokemonListViewState(dataFetchState: .loaded, items: manyItems)
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        sut.tableView(sut.tableView, willDisplay: UITableViewCell(), forRowAt: IndexPath(row: itemCount - 2, section: 0))
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+    }
+
+    func test_whenWillDisplayLastCell_andStateError_doesNotRequestLoadPokemon() {
+        let itemCount = 100
+        let manyItems = Array(repeating: items[0], count: itemCount)
+        let state = PokemonListViewState(dataFetchState: .error, items: manyItems)
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        sut.tableView(sut.tableView, willDisplay: UITableViewCell(), forRowAt: IndexPath(row: itemCount - 2, section: 0))
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+    }
+
+    func test_whenWillDisplayLastCell_andStateLoading_doesNotRequestLoadPokemon() {
+        let itemCount = 100
+        let manyItems = Array(repeating: items[0], count: itemCount)
+        let state = PokemonListViewState(dataFetchState: .loading, items: manyItems)
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        sut.tableView(sut.tableView, willDisplay: UITableViewCell(), forRowAt: IndexPath(row: itemCount - 2, section: 0))
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+    }
+
+    func test_whenWillDisplayLastCell_andStateLoaded_requestsLoadPokemon() {
+        let itemCount = 100
+        let manyItems = Array(repeating: items[0], count: itemCount)
+        let state = PokemonListViewState(dataFetchState: .loaded, items: manyItems)
+        let viewModel = TestViewModel(initialState: state)
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        sut.tableView(sut.tableView, willDisplay: UITableViewCell(), forRowAt: IndexPath(row: itemCount - 1, section: 0))
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 2)
+        XCTAssertEqual(viewModel.performActionParameters.last, .loadPokemon)
+    }
+
     private func hasLoadingCell(sut: SutType, row: Int) -> Bool {
         return sut.tableView.cellForRow(at: IndexPath(row: row, section: 0)) is LoadingTableViewCell
     }

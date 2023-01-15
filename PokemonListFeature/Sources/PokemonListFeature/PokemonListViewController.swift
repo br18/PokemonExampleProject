@@ -81,8 +81,9 @@ class PokemonListViewController<VM: ViewModel>:
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-
-        
+        if viewModel.stateValue.dataFetchState == .loaded && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            viewModel.perform(.loadPokemon)
+        }
     }
 }
 
