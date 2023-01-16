@@ -7,6 +7,7 @@
 
 import XCTest
 import Combine
+import SharedTestHelpers
 @testable import PokemonListFeature
 
 final class PokemonListViewControllerTests: XCTestCase {
@@ -260,6 +261,7 @@ final class PokemonListViewControllerTests: XCTestCase {
     
     private func makeSut(viewModel: TestViewModel) -> SutType {
         let sut = PokemonListViewController(viewModel: viewModel)
+        trackForMemoryLeaks(sut)
         let _ = sut.view
         return sut
     }

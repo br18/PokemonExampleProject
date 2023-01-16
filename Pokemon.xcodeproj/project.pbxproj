@@ -52,6 +52,7 @@
 		B5892B2B29715A1000355305 /* PokemonUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonUITests.swift; sourceTree = "<group>"; };
 		B5892B2D29715A1000355305 /* PokemonUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		B58FCFA22971603E003FCCD1 /* PokemonAPI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonAPI; sourceTree = "<group>"; };
+		B591AE142975F1F500248492 /* SharedTestHelpers */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedTestHelpers; sourceTree = "<group>"; };
 		B5F048122974B35E0075B840 /* PokemonDomain */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonDomain; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -91,6 +92,7 @@
 		B5892AFE29715A0F00355305 = {
 			isa = PBXGroup;
 			children = (
+				B591AE142975F1F500248492 /* SharedTestHelpers */,
 				B5F048122974B35E0075B840 /* PokemonDomain */,
 				B577E6012971C18D005216E3 /* PokemonListFeature */,
 				B58FCFA22971603E003FCCD1 /* PokemonAPI */,

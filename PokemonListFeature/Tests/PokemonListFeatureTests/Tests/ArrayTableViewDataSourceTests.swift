@@ -8,6 +8,7 @@
 import Foundation
 import XCTest
 import UIKit
+import SharedTestHelpers
 @testable import PokemonListFeature
 
 final class ArrayTableViewDataSourceTests: XCTestCase {
@@ -71,7 +72,9 @@ final class ArrayTableViewDataSourceTests: XCTestCase {
 
     private func makeSUT(items: [String] = [],
                          cellFactory: @escaping (UITableView, String) -> UITableViewCell = { _,_  in UITableViewCell() } ) -> ArrayTableViewDataSource<String> {
-        ArrayTableViewDataSource(items: items, cellFactory: cellFactory)
+        let sut = ArrayTableViewDataSource(items: items, cellFactory: cellFactory)
+        trackForMemoryLeaks(sut)
+        return sut
 
     }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MockError: Error {
+public enum MockError: Error {
     case mock1
     case mock2
 }

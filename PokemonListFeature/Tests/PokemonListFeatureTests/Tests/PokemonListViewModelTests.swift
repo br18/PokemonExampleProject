@@ -8,6 +8,7 @@
 import XCTest
 import PokemonDomain
 import Combine
+import SharedTestHelpers
 @testable import PokemonListFeature
 
 final class PokemonListViewModelTests: XCTestCase {
@@ -57,6 +58,26 @@ final class PokemonListViewModelTests: XCTestCase {
         expect(sut: sut, toPublishNext: expectedState)
     }
 
+    func test_performLoadPokemon_whenNoPokemonLoadedAndResponseIsError_stateIsErrorWithEmptyPokemon() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.failure(MockError.mock1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+
+        await taskManager.awaitCurrentTasks()
+
+        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .error, items: [])
+
+        XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
+        XCTAssertEqual(sut.stateValue, expectedState)
+        expect(sut: sut, toPublishNext: expectedState)
+    }
+
     private func expect(sut: PokemonListViewModel,
                         toPublishNext expectedState: PokemonListViewState,
                         file: StaticString = #filePath,
@@ -75,12 +96,14 @@ final class PokemonListViewModelTests: XCTestCase {
 
     private func makeSut(pageSize: Int = 2,
                          repository: PokemonRepository = StubPokemonRepository(),
-                         viewDetails: @escaping (Int) -> Void = { _ in},
+                         viewDetails: @escaping (Int) -> Void = { _ in },
                          createTask: @escaping PokemonListViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonListViewModel {
-        return PokemonListViewModel(pageSize: pageSize,
-                                    pokemonRepository: repository,
-                                    viewDetails: viewDetails,
-                                    createTask: createTask)
+        let sut = PokemonListViewModel(pageSize: pageSize,
+                                       pokemonRepository: repository,
+                                       viewDetails: viewDetails,
+                                       createTask: createTask)
+        trackForMemoryLeaks(sut)
+        return sut
     }
 }
 

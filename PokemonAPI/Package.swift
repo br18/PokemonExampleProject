@@ -13,7 +13,8 @@ let package = Package(
             targets: ["PokemonAPI"]),
     ],
     dependencies: [
-        .package(path: "../PokemonDomain")
+        .package(path: "../PokemonDomain"),
+        .package(path: "../SharedTestHelpers")
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],
@@ -25,6 +26,6 @@ let package = Package(
             dependencies: ["PokemonDomain"]),
         .testTarget(
             name: "PokemonAPITests",
-            dependencies: ["PokemonAPI", "PokemonDomain"]),
+            dependencies: ["PokemonAPI", "PokemonDomain", "SharedTestHelpers"]),
     ]
 )

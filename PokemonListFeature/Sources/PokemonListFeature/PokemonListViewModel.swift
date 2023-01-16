@@ -55,7 +55,9 @@ class PokemonListViewModel: ViewModel {
                                                                                   limit: self.pageSize)
                 let pokemonListItems = pokemonResult.pokemon.map { $0.toListItem() }
                 self.state = PokemonListViewState(dataFetchState: .loaded, items: pokemonListItems)
-            } catch {}
+            } catch {
+                self.state = PokemonListViewState(dataFetchState: .error, items: [])
+            }
         }
     }
     
