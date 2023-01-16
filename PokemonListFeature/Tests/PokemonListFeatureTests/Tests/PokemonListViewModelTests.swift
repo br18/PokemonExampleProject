@@ -12,7 +12,7 @@ import SharedTestHelpers
 @testable import PokemonListFeature
 
 final class PokemonListViewModelTests: XCTestCase {
-    private let pokemonFetchResultPage1: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 667, name: "bulbasaur"), Pokemon(id: 543, name: "charizard")], 3)
+    private var pokemonFetchResultPage1: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 667, name: "bulbasaur"), Pokemon(id: 543, name: "charizard")], 3)
     private let pokemonFetchResultPage2: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 43, name: "pikachu")], 3)
 
     func test_initialState_isLoadingWithZeroItems() {
@@ -49,7 +49,7 @@ final class PokemonListViewModelTests: XCTestCase {
 
         await taskManager.awaitCurrentTasks()
 
-        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .loaded, items: pokemonFetchResultPage1.pokemon.map { PokemonListViewItem(id: $0.id, name: $0.name) } )
+        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .loaded, items: pokemonFetchResultPage1.pokemon.map { $0.toListItem() } )
 
         XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
@@ -74,6 +74,33 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
+        XCTAssertEqual(sut.stateValue, expectedState)
+        expect(sut: sut, toPublishNext: expectedState)
+    }
+
+    func test_performLoadPokemon_whenPokemonPreviouslyLoadedAndResponseIsSecondPage_fetchesAndAppendsSecondPageOfPokemonToState() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.success(pokemonFetchResultPage1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        repository.fetchPokemonResult = Result.success(pokemonFetchResultPage2)
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        let expectedItems = (pokemonFetchResultPage1.pokemon + pokemonFetchResultPage2.pokemon).map { $0.toListItem() }
+        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .loaded, items: expectedItems)
+
+        XCTAssertEqual(repository.fetchPokemonParametersList.count, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.last?.offset, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.last?.limit, 2)
         XCTAssertEqual(sut.stateValue, expectedState)
         expect(sut: sut, toPublishNext: expectedState)
     }
@@ -144,5 +171,11 @@ extension PokemonListViewState: Equatable {
 extension PokemonListViewItem: Equatable {
     public static func == (lhs: PokemonListViewItem, rhs: PokemonListViewItem) -> Bool {
         lhs.name == rhs.name && lhs.id == rhs.id
+    }
+}
+
+private extension Pokemon {
+    func toListItem() -> PokemonListViewItem {
+        PokemonListViewItem(id: id, name: name)
     }
 }

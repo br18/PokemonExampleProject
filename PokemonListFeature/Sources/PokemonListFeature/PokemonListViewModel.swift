@@ -51,10 +51,11 @@ class PokemonListViewModel: ViewModel {
         createTask { [weak self] in
             guard let self else { return }
             do {
-                let pokemonResult = try await self.pokemonRepository.fetchPokemon(offset: 0,
+                let itemsBeforeLoad = self.state.items
+                let pokemonResult = try await self.pokemonRepository.fetchPokemon(offset: itemsBeforeLoad.count,
                                                                                   limit: self.pageSize)
                 let pokemonListItems = pokemonResult.pokemon.map { $0.toListItem() }
-                self.state = PokemonListViewState(dataFetchState: .loaded, items: pokemonListItems)
+                self.state = PokemonListViewState(dataFetchState: .loaded, items: itemsBeforeLoad + pokemonListItems)
             } catch {
                 self.state = PokemonListViewState(dataFetchState: .error, items: [])
             }
