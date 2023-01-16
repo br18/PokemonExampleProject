@@ -43,7 +43,9 @@ class PokemonListViewModel: ViewModel {
     func perform(_ action: PokemonListViewAction) {
         switch action {
         case .loadPokemon:
-            loadPokemon()
+            if shouldLoadPokemon {
+                loadPokemon()
+            }
         case .viewDetails(let id):
            viewDetails(id)
         }
@@ -51,10 +53,6 @@ class PokemonListViewModel: ViewModel {
 
 
     private func loadPokemon() {
-        guard shouldLoadPokemon else {
-            return
-        }
-
         if !initialFetchStarted {
             initialFetchStarted = true
         }
