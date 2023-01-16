@@ -1,3 +1,3 @@
 # SharedTestHelpers
 
-A description of this package.
+Shared functionality to make testing easier.
