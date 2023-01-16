@@ -26,6 +26,8 @@ class PokemonListViewModel: ViewModel {
     private let viewDetails: (Int) -> Void
     private let pageSize: Int
 
+    private var reachedEndOfPokemon = false
+
     init(pageSize: Int = 10,
          pokemonRepository: PokemonRepository,
          viewDetails: @escaping (Int) -> Void,
@@ -48,6 +50,10 @@ class PokemonListViewModel: ViewModel {
 
 
     private func loadPokemon() {
+        if reachedEndOfPokemon {
+            return
+        }
+
         createTask { [weak self] in
             guard let self else { return }
             let itemsBeforeLoad = self.state.items
@@ -55,7 +61,9 @@ class PokemonListViewModel: ViewModel {
                 let pokemonResult = try await self.pokemonRepository.fetchPokemon(offset: itemsBeforeLoad.count,
                                                                                   limit: self.pageSize)
                 let pokemonListItems = pokemonResult.pokemon.map { $0.toListItem() }
-                self.state = PokemonListViewState(dataFetchState: .loaded, items: itemsBeforeLoad + pokemonListItems)
+                let newItems = itemsBeforeLoad + pokemonListItems
+                self.state = PokemonListViewState(dataFetchState: .loaded, items: newItems)
+                self.reachedEndOfPokemon = newItems.count >= pokemonResult.totalCount
             } catch {
                 self.state = PokemonListViewState(dataFetchState: .error, items: itemsBeforeLoad)
             }
