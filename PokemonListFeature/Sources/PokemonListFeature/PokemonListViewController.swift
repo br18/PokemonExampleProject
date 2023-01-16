@@ -30,6 +30,7 @@ public class PokemonListViewController<VM: ViewModel>:
     public init(viewModel: VM) {
         self.viewModel = viewModel
         super.init(nibName: "PokemonListViewController", bundle: Bundle.module)
+        title = "Pokemon"
     }
 
     required init?(coder: NSCoder) {

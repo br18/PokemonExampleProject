@@ -23,7 +23,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 print("View pokemon details: \(id)")
             }
 
-            window.rootViewController = PokemonListViewController(viewModel: viewModel)
+            window.rootViewController = UINavigationController(rootViewController: PokemonListViewController(viewModel: viewModel))
+
             self.window = window
             window.makeKeyAndVisible()
         }

@@ -25,6 +25,12 @@ import SharedTestHelpers
     private lazy var loadingStateWithItems = PokemonListViewState(dataFetchState: .loading, items: items)
     private let loadedStateWithoutItems = PokemonListViewState(dataFetchState: .loaded, items: [])
 
+    func test_title_isPokemon() {
+        let viewModel = TestViewModel(initialState: loadedStateWithItems)
+        let sut = makeSut(viewModel: viewModel)
+        XCTAssertEqual(sut.title, "Pokemon")
+    }
+
     func test_whenTableViewRowInPokemonRangeSelected_performsViewDetailsForPokemonItemAtRow() {
         let viewModel = TestViewModel(initialState: loadedStateWithItems)
 
