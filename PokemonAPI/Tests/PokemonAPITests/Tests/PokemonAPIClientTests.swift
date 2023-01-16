@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import PokemonDomain
 @testable import PokemonAPI
 
 final class PokemonAPIClientTests: XCTestCase {

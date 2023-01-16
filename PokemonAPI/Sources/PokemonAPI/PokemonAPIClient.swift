@@ -6,23 +6,11 @@
 //
 
 import Foundation
-
-public struct Pokemon {
-    let id: Int
-    let name: String
-}
+import PokemonDomain
 
 public struct PokemonListResponse {
     let pokemon: [Pokemon]
     let totalCount: Int
-}
-
-public struct PokemonDetails {
-    let name: String
-    let image: URL
-    let heightInDecimeters: Int
-    let weightInHectograms: Int
-    let types: [String]
 }
 
 public class PokemonAPIClient {
