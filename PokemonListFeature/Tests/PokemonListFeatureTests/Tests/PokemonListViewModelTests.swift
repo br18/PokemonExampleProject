@@ -19,6 +19,22 @@ final class PokemonListViewModelTests: XCTestCase {
         expect(sut: sut, toPublishNext: expectedState)
     }
 
+    func test_performViewDetails_givenInitWithPerformDetailsClosure_callClosureWithId() {
+        var viewDetailsIds = [Int]()
+        let viewDetails: (Int) -> Void = { id in
+            viewDetailsIds.append(id)
+        }
+
+        let sut = makeSut(viewDetails: viewDetails)
+
+        sut.perform(.viewDetails(id: 1))
+        sut.perform(.viewDetails(id: 65))
+
+        XCTAssertEqual(viewDetailsIds.count, 2)
+        XCTAssertEqual(viewDetailsIds.first, 1)
+        XCTAssertEqual(viewDetailsIds.last, 65)
+    }
+
     private func expect(sut: PokemonListViewModel, toPublishNext expectedState: PokemonListViewState) {
         let expectation = XCTestExpectation(description: "Next state publish")
         var cancellable: AnyCancellable?
@@ -32,8 +48,12 @@ final class PokemonListViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 
-    private func makeSut(repository: PokemonRepository = StubPokemonRepository()) -> PokemonListViewModel {
-        return PokemonListViewModel(pokemonRepository: repository)
+    private func makeSut(repository: PokemonRepository = StubPokemonRepository(),
+                         viewDetails: @escaping (Int) -> Void = { _ in},
+                         createTask: @escaping PokemonListViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonListViewModel {
+        return PokemonListViewModel(pokemonRepository: repository,
+                                    viewDetails: viewDetails,
+                                    createTask: createTask)
     }
 }
 
