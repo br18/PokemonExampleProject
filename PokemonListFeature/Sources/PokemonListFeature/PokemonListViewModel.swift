@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import PokemonDomain
+import SharedUI
 
 public protocol PokemonRepository {
     func fetchPokemon(offset: Int, limit: Int) async throws -> (pokemon: [Pokemon], totalCount: Int)

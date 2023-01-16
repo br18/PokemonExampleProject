@@ -9,6 +9,8 @@ import XCTest
 import Combine
 import SharedTestHelpers
 @testable import PokemonListFeature
+import SharedUI
+import SharedUITests
 
 @MainActor final class PokemonListViewControllerTests: XCTestCase {
 

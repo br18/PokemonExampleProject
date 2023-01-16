@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import SharedUI
 
 enum PokemonTableViewItem {
     case error
