@@ -51,7 +51,7 @@ class PokemonListViewModel: ViewModel {
 
 
     private func loadPokemon() {
-        if reachedEndOfPokemon || (initialFetchStarted && state.dataFetchState == .loading) {
+        guard shouldLoadPokemon else {
             return
         }
 
@@ -75,6 +75,14 @@ class PokemonListViewModel: ViewModel {
                 self.state = PokemonListViewState(dataFetchState: .error, items: itemsBeforeLoad)
             }
         }
+    }
+
+    private var shouldLoadPokemon: Bool {
+        if reachedEndOfPokemon {
+            return false
+        }
+        let currentlyLoadingPokemon = initialFetchStarted && state.dataFetchState == .loading
+        return !currentlyLoadingPokemon
     }
     
 }
