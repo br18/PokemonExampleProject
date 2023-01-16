@@ -14,7 +14,7 @@ enum PokemonTableViewItem {
     case pokemon(item: PokemonListViewItem)
 }
 
-class PokemonListViewController<VM: ViewModel>:
+public class PokemonListViewController<VM: ViewModel>:
     UIViewController, UITableViewDelegate where VM.State == PokemonListViewState,
                                                 VM.Action == PokemonListViewAction {
     @IBOutlet var tableView: UITableView!
@@ -27,7 +27,7 @@ class PokemonListViewController<VM: ViewModel>:
 
     private var cancellables = Set<AnyCancellable>()
 
-    init(viewModel: VM) {
+    public init(viewModel: VM) {
         self.viewModel = viewModel
         super.init(nibName: "PokemonListViewController", bundle: Bundle.module)
     }
@@ -36,14 +36,14 @@ class PokemonListViewController<VM: ViewModel>:
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
         bindViewModel()
         viewModel.perform(.loadPokemon)
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
         let items = viewModel.stateValue.items
         guard items.containsInRange(row) else {
@@ -80,7 +80,7 @@ class PokemonListViewController<VM: ViewModel>:
         tableView.delegate = self
     }
 
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if viewModel.stateValue.dataFetchState == .loaded && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
             viewModel.perform(.loadPokemon)
         }

@@ -16,3 +16,5 @@ extension PokemonAPIClient: PokemonRepository {
         return (pokemon: result.pokemon, totalCount: result.totalCount)
     }
 }
+
+extension URLSession: URLSessionURLFetching {}

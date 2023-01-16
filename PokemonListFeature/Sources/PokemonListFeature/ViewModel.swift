@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol ViewModel {
+@MainActor public protocol ViewModel {
     associatedtype State
     associatedtype Action
 

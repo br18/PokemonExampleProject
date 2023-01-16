@@ -9,25 +9,25 @@ import Foundation
 
 // MARK: - View Input - State
 
-struct PokemonListViewItem {
+public struct PokemonListViewItem {
     var id: Int
     var name: String
 }
 
-enum PokemonListViewDataFetchState {
+public enum PokemonListViewDataFetchState {
     case loading
     case loaded
     case error
 }
 
-struct PokemonListViewState {
+public struct PokemonListViewState {
     var dataFetchState: PokemonListViewDataFetchState
     var items: [PokemonListViewItem]
 }
 
 // MARK: - View Output - Actions
 
-enum PokemonListViewAction {
+public enum PokemonListViewAction {
     case loadPokemon
     case viewDetails(id: Int)
 }

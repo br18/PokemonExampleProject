@@ -16,8 +16,8 @@ public protocol PokemonRepository {
 public class PokemonListViewModel: ViewModel {
     public typealias CreateTask = (@escaping () async -> Void) -> Void
 
-    var statePublisher: AnyPublisher<PokemonListViewState, Never> { $state.eraseToAnyPublisher() }
-    var stateValue: PokemonListViewState { state }
+    public var statePublisher: AnyPublisher<PokemonListViewState, Never> { $state.eraseToAnyPublisher() }
+    public var stateValue: PokemonListViewState { state }
 
     @Published private var state: PokemonListViewState
 
@@ -40,7 +40,7 @@ public class PokemonListViewModel: ViewModel {
         self.viewDetails = viewDetails
     }
 
-    func perform(_ action: PokemonListViewAction) {
+    public func perform(_ action: PokemonListViewAction) {
         switch action {
         case .loadPokemon:
             if shouldLoadPokemon {
