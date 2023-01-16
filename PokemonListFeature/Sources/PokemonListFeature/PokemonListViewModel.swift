@@ -14,7 +14,7 @@ protocol PokemonRepository {
 }
 
 class PokemonListViewModel: ViewModel {
-    typealias CreateTask = (@escaping () async -> Void) -> Task<(), Never>
+    typealias CreateTask = (@escaping () async -> Void) -> Void
 
     var statePublisher: AnyPublisher<PokemonListViewState, Never> { $state.eraseToAnyPublisher() }
     var stateValue: PokemonListViewState { state }
@@ -24,11 +24,14 @@ class PokemonListViewModel: ViewModel {
     private let pokemonRepository: PokemonRepository
     private let createTask: CreateTask
     private let viewDetails: (Int) -> Void
+    private let pageSize: Int
 
-    init(pokemonRepository: PokemonRepository,
+    init(pageSize: Int = 10,
+         pokemonRepository: PokemonRepository,
          viewDetails: @escaping (Int) -> Void,
          createTask: @escaping CreateTask = { closure in Task { await closure() } } ) {
         state = PokemonListViewState(dataFetchState: .loading, items: [])
+        self.pageSize = pageSize
         self.pokemonRepository = pokemonRepository
         self.createTask = createTask
         self.viewDetails = viewDetails
@@ -37,11 +40,29 @@ class PokemonListViewModel: ViewModel {
     func perform(_ action: PokemonListViewAction) {
         switch action {
         case .loadPokemon:
-            break
+            loadPokemon()
         case .viewDetails(let id):
            viewDetails(id)
         }
     }
 
+
+    private func loadPokemon() {
+        createTask { [weak self] in
+            guard let self else { return }
+            do {
+                let pokemonResult = try await self.pokemonRepository.fetchPokemon(offset: 0,
+                                                                                  limit: self.pageSize)
+                let pokemonListItems = pokemonResult.pokemon.map { $0.toListItem() }
+                self.state = PokemonListViewState(dataFetchState: .loaded, items: pokemonListItems)
+            } catch {}
+        }
+    }
     
+}
+
+private extension Pokemon {
+    func toListItem() -> PokemonListViewItem {
+        PokemonListViewItem(id: id, name: name)
+    }
 }

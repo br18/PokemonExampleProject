@@ -11,6 +11,8 @@ import Combine
 @testable import PokemonListFeature
 
 final class PokemonListViewModelTests: XCTestCase {
+    private let pokemonFetchResultPage1: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 667, name: "bulbasaur"), Pokemon(id: 543, name: "charizard")], 3)
+    private let pokemonFetchResultPage2: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 43, name: "pikachu")], 3)
 
     func test_initialState_isLoadingWithZeroItems() {
         let sut = makeSut()
@@ -35,12 +37,35 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(viewDetailsIds.last, 65)
     }
 
-    private func expect(sut: PokemonListViewModel, toPublishNext expectedState: PokemonListViewState) {
+    func test_performLoadPokemon_whenNoPokemonLoadedAndResponseContainsPokemon_stateIsLoadedWithPokemon() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.success(pokemonFetchResultPage1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+
+        await taskManager.awaitCurrentTasks()
+
+        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .loaded, items: pokemonFetchResultPage1.pokemon.map { PokemonListViewItem(id: $0.id, name: $0.name) } )
+
+        XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
+        XCTAssertEqual(sut.stateValue, expectedState)
+        expect(sut: sut, toPublishNext: expectedState)
+    }
+
+    private func expect(sut: PokemonListViewModel,
+                        toPublishNext expectedState: PokemonListViewState,
+                        file: StaticString = #filePath,
+                        line: UInt = #line) {
         let expectation = XCTestExpectation(description: "Next state publish")
         var cancellable: AnyCancellable?
 
         cancellable = sut.statePublisher.sink { state in
-            XCTAssertEqual(state, expectedState)
+            XCTAssertEqual(state, expectedState, file: file, line: line)
             expectation.fulfill()
             cancellable?.cancel()
         }
@@ -48,12 +73,31 @@ final class PokemonListViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 
-    private func makeSut(repository: PokemonRepository = StubPokemonRepository(),
+    private func makeSut(pageSize: Int = 2,
+                         repository: PokemonRepository = StubPokemonRepository(),
                          viewDetails: @escaping (Int) -> Void = { _ in},
                          createTask: @escaping PokemonListViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonListViewModel {
-        return PokemonListViewModel(pokemonRepository: repository,
+        return PokemonListViewModel(pageSize: pageSize,
+                                    pokemonRepository: repository,
                                     viewDetails: viewDetails,
                                     createTask: createTask)
+    }
+}
+
+class TaskManager {
+    private var tasks = [Task<(), Never>]()
+
+    func createTask(_ closure: @escaping () async -> Void) {
+        let task = Task {
+            await closure()
+        }
+        tasks.append(task)
+    }
+
+    func awaitCurrentTasks() async {
+        for task in tasks {
+            _ = await task.result
+        }
     }
 }
 
