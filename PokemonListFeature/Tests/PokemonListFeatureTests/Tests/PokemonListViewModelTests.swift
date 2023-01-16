@@ -152,6 +152,43 @@ final class PokemonListViewModelTests: XCTestCase {
         expect(sut: sut, toHaveState: expectedState)
     }
 
+    func test_performLoadPokemon_whenInitialFetchIsSuccess_setsStateToLoadingBeforeLoadingFromRepository() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.success(pokemonFetchResultPage1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        taskManager.ignoreNewTasks = true
+
+        sut.perform(.loadPokemon)
+
+        let expectedItems = (pokemonFetchResultPage1.pokemon).map { $0.toListItem() }
+        let expectedState = PokemonListViewState(dataFetchState: .loading, items: expectedItems)
+        expect(sut: sut, toHaveState: expectedState)
+    }
+
+    func test_performLoadPokemon_whenInitialFetchIsFailed_setsStateToLoadingBeforeLoadingFromRepository() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.failure(MockError.mock1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        taskManager.ignoreNewTasks = true
+
+        sut.perform(.loadPokemon)
+
+        let expectedState = PokemonListViewState(dataFetchState: .loading, items: [])
+        expect(sut: sut, toHaveState: expectedState)
+    }
+
 
     private func expect(sut: PokemonListViewModel,
                         toHaveState expectedState: PokemonListViewState,
@@ -186,7 +223,13 @@ final class PokemonListViewModelTests: XCTestCase {
 class TaskManager {
     private var tasks = [Task<(), Never>]()
 
+    var ignoreNewTasks = false
+
     func createTask(_ closure: @escaping () async -> Void) {
+        if ignoreNewTasks {
+            return
+        }
+
         let task = Task {
             await closure()
         }

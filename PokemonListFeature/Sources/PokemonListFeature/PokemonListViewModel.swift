@@ -53,6 +53,10 @@ class PokemonListViewModel: ViewModel {
         if reachedEndOfPokemon {
             return
         }
+        
+        if state.dataFetchState != .loading {
+            state = PokemonListViewState(dataFetchState: .loading, items: state.items)
+        }
 
         createTask { [weak self] in
             guard let self else { return }
