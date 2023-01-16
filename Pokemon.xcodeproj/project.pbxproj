@@ -40,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		B553EE0F2976124900FBC79F /* SharedUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedUI; sourceTree = "<group>"; };
+		B56B01122976187E00A51F49 /* PokemonDetailsFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonDetailsFeature; sourceTree = "<group>"; };
 		B577E6012971C18D005216E3 /* PokemonListFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonListFeature; sourceTree = "<group>"; };
 		B5892B0729715A0F00355305 /* Pokemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5892B0A29715A0F00355305 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -97,6 +98,7 @@
 		B5892AFE29715A0F00355305 = {
 			isa = PBXGroup;
 			children = (
+				B56B01122976187E00A51F49 /* PokemonDetailsFeature */,
 				B553EE0F2976124900FBC79F /* SharedUI */,
 				B591AE142975F1F500248492 /* SharedTestHelpers */,
 				B5F048122974B35E0075B840 /* PokemonDomain */,
