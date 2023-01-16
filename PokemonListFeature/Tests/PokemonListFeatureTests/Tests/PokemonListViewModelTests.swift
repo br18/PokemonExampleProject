@@ -18,8 +18,7 @@ final class PokemonListViewModelTests: XCTestCase {
     func test_initialState_isLoadingWithZeroItems() {
         let sut = makeSut()
         let expectedState = PokemonListViewState(dataFetchState: .loading, items: [])
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
     func test_performViewDetails_givenInitWithPerformDetailsClosure_callClosureWithId() {
@@ -54,8 +53,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
     func test_performLoadPokemon_whenNoPokemonLoadedAndResponseIsError_stateIsErrorWithEmptyPokemon() async {
@@ -74,8 +72,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
     func test_performLoadPokemon_whenPokemonPreviouslyLoadedAndResponseIsSecondPage_fetchesAndAppendsSecondPageOfPokemonToState() async {
@@ -101,8 +98,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
         XCTAssertEqual(repository.fetchPokemonParametersList.last?.offset, 2)
         XCTAssertEqual(repository.fetchPokemonParametersList.last?.limit, 2)
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
     func test_performLoadPokemon_whenPokemonPreviouslyLoadedAndResponseError_isErrorStateWithFetchedPokemon() async {
@@ -128,8 +124,7 @@ final class PokemonListViewModelTests: XCTestCase {
         XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
         XCTAssertEqual(repository.fetchPokemonParametersList.last?.offset, 2)
         XCTAssertEqual(repository.fetchPokemonParametersList.last?.limit, 2)
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
     func test_performLoadPokemon_whenPokemonFetchedToCount_doesNotFetchMorePokemon() async {
@@ -154,17 +149,17 @@ final class PokemonListViewModelTests: XCTestCase {
         let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .loaded, items: expectedItems)
 
         XCTAssertEqual(repository.fetchPokemonParametersList.count, 2)
-        XCTAssertEqual(sut.stateValue, expectedState)
-        expect(sut: sut, toPublishNext: expectedState)
+        expect(sut: sut, toHaveState: expectedState)
     }
 
 
     private func expect(sut: PokemonListViewModel,
-                        toPublishNext expectedState: PokemonListViewState,
+                        toHaveState expectedState: PokemonListViewState,
                         file: StaticString = #filePath,
                         line: UInt = #line) {
         let expectation = XCTestExpectation(description: "Next state publish")
         var cancellable: AnyCancellable?
+        XCTAssertEqual(sut.stateValue, expectedState, file: file, line: line)
 
         cancellable = sut.statePublisher.sink { state in
             XCTAssertEqual(state, expectedState, file: file, line: line)
