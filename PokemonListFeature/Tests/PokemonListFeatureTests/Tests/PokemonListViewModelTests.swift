@@ -105,6 +105,34 @@ final class PokemonListViewModelTests: XCTestCase {
         expect(sut: sut, toPublishNext: expectedState)
     }
 
+    func test_performLoadPokemon_whenPokemonPreviouslyLoadedAndResponseError_isErrorStateWithFetchedPokemon() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.success(pokemonFetchResultPage1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        repository.fetchPokemonResult = Result.failure(MockError.mock1)
+
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        let expectedItems = (pokemonFetchResultPage1.pokemon).map { $0.toListItem() }
+        let expectedState: PokemonListViewState = PokemonListViewState(dataFetchState: .error, items: expectedItems)
+
+        XCTAssertEqual(repository.fetchPokemonParametersList.count, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.offset, 0)
+        XCTAssertEqual(repository.fetchPokemonParametersList.first?.limit, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.last?.offset, 2)
+        XCTAssertEqual(repository.fetchPokemonParametersList.last?.limit, 2)
+        XCTAssertEqual(sut.stateValue, expectedState)
+        expect(sut: sut, toPublishNext: expectedState)
+    }
+
+
     private func expect(sut: PokemonListViewModel,
                         toPublishNext expectedState: PokemonListViewState,
                         file: StaticString = #filePath,
