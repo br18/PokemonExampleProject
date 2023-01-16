@@ -87,6 +87,6 @@ public class PokemonListViewModel: ViewModel {
 
 private extension Pokemon {
     func toListItem() -> PokemonListViewItem {
-        PokemonListViewItem(id: id, name: name)
+        PokemonListViewItem(id: id, name: name.capitalized)
     }
 }

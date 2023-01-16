@@ -10,7 +10,7 @@ import Combine
 import SharedTestHelpers
 @testable import PokemonListFeature
 
-final class PokemonListViewControllerTests: XCTestCase {
+@MainActor final class PokemonListViewControllerTests: XCTestCase {
 
     private typealias SutType = PokemonListViewController<TestViewModel>
 

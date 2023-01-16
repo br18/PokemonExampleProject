@@ -11,7 +11,7 @@ import Combine
 import SharedTestHelpers
 @testable import PokemonListFeature
 
-final class PokemonListViewModelTests: XCTestCase {
+@MainActor final class PokemonListViewModelTests: XCTestCase {
     private var pokemonFetchResultPage1: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 667, name: "bulbasaur"), Pokemon(id: 543, name: "charizard")], 3)
     private let pokemonFetchResultPage2: (pokemon: [Pokemon], totalCount: Int) =  ([Pokemon(id: 43, name: "pikachu")], 3)
 
@@ -286,6 +286,6 @@ extension PokemonListViewItem: Equatable {
 
 private extension Pokemon {
     func toListItem() -> PokemonListViewItem {
-        PokemonListViewItem(id: id, name: name)
+        PokemonListViewItem(id: id, name: name.capitalized)
     }
 }
