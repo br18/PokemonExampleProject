@@ -26,6 +26,7 @@ class PokemonListViewModel: ViewModel {
     private let viewDetails: (Int) -> Void
     private let pageSize: Int
 
+    private var initialFetchStarted = false
     private var reachedEndOfPokemon = false
 
     init(pageSize: Int = 10,
@@ -50,13 +51,15 @@ class PokemonListViewModel: ViewModel {
 
 
     private func loadPokemon() {
-        if reachedEndOfPokemon {
+        if reachedEndOfPokemon || (initialFetchStarted && state.dataFetchState == .loading) {
             return
         }
-        
-        if state.dataFetchState != .loading {
-            state = PokemonListViewState(dataFetchState: .loading, items: state.items)
+
+        if !initialFetchStarted {
+            initialFetchStarted = true
         }
+
+        state = PokemonListViewState(dataFetchState: .loading, items: state.items)
 
         createTask { [weak self] in
             guard let self else { return }

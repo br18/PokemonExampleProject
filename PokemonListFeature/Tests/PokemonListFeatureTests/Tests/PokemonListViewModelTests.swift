@@ -189,6 +189,25 @@ final class PokemonListViewModelTests: XCTestCase {
         expect(sut: sut, toHaveState: expectedState)
     }
 
+    func test_performLoadPokemon_whenAlreadyLoadingPokemon_doesNotLoadMorePokemon() async {
+        let taskManager = TaskManager()
+        let repository = StubPokemonRepository()
+        repository.fetchPokemonResult = Result.failure(MockError.mock1)
+
+        let sut = makeSut(repository: repository, createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        sut.perform(.loadPokemon)
+        await taskManager.awaitCurrentTasks()
+
+        XCTAssertEqual(repository.fetchPokemonParametersList.count, 1)
+    }
+
 
     private func expect(sut: PokemonListViewModel,
                         toHaveState expectedState: PokemonListViewState,
@@ -221,24 +240,23 @@ final class PokemonListViewModelTests: XCTestCase {
 }
 
 class TaskManager {
-    private var tasks = [Task<(), Never>]()
-
     var ignoreNewTasks = false
+
+    var taskClosures = [() async -> Void]()
 
     func createTask(_ closure: @escaping () async -> Void) {
         if ignoreNewTasks {
             return
         }
 
-        let task = Task {
-            await closure()
-        }
-        tasks.append(task)
+        taskClosures.append(closure)
     }
 
     func awaitCurrentTasks() async {
-        for task in tasks {
-            _ = await task.result
+        while let taskClosure = taskClosures.popLast() {
+            _ = await Task {
+                await taskClosure()
+            }.result
         }
     }
 }
