@@ -9,12 +9,12 @@ import Foundation
 import Combine
 import PokemonDomain
 
-protocol PokemonRepository {
+public protocol PokemonRepository {
     func fetchPokemon(offset: Int, limit: Int) async throws -> (pokemon: [Pokemon], totalCount: Int)
 }
 
-class PokemonListViewModel: ViewModel {
-    typealias CreateTask = (@escaping () async -> Void) -> Void
+public class PokemonListViewModel: ViewModel {
+    public typealias CreateTask = (@escaping () async -> Void) -> Void
 
     var statePublisher: AnyPublisher<PokemonListViewState, Never> { $state.eraseToAnyPublisher() }
     var stateValue: PokemonListViewState { state }
@@ -29,7 +29,7 @@ class PokemonListViewModel: ViewModel {
     private var initialFetchStarted = false
     private var reachedEndOfPokemon = false
 
-    init(pageSize: Int = 10,
+    public init(pageSize: Int = 10,
          pokemonRepository: PokemonRepository,
          viewDetails: @escaping (Int) -> Void,
          createTask: @escaping CreateTask = { closure in Task { await closure() } } ) {

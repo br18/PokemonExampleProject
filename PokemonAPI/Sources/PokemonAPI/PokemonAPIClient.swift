@@ -9,8 +9,13 @@ import Foundation
 import PokemonDomain
 
 public struct PokemonListResponse {
-    let pokemon: [Pokemon]
-    let totalCount: Int
+    public let pokemon: [Pokemon]
+    public let totalCount: Int
+
+    init(pokemon: [Pokemon], totalCount: Int) {
+        self.pokemon = pokemon
+        self.totalCount = totalCount
+    }
 }
 
 public class PokemonAPIClient {
