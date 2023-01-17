@@ -73,7 +73,7 @@ import PokemonDomain
         let details = PokemonDetails(name: "bulbasair",
                                      image: pokemonImageURL,
                                      heightInDecimeters: 6,
-                                     weightInHectograms: 7687,
+                                     weightInHectograms: 42,
                                      types: ["grass", "insect", "poison"])
 
         let repository = MockPokemonDetailsRepository()
@@ -88,7 +88,7 @@ import PokemonDomain
 
         let expectedState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
                                                           imageURL: details.image,
-                                                          weight: "768.7kg",
+                                                          weight: "4.2kg",
                                                           height: "0.6m",
                                                           types: "Grass, Insect, Poison")
 
@@ -123,6 +123,7 @@ import PokemonDomain
                          createTask: @escaping PokemonDetailsViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonDetailsViewModel {
         let sut = PokemonDetailsViewModel(pokemonId: pokemonId,
                                           repository: repository,
+                                          locale: Locale(identifier: "en_GB"),
                                           createTask: createTask)
         trackForMemoryLeaks(sut)
         return sut

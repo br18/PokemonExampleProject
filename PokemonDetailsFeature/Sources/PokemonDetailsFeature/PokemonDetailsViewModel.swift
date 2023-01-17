@@ -23,18 +23,26 @@ public class PokemonDetailsViewModel: ViewModel {
     private let pokemonId: Int
     private let repository: PokemonDetailsRepository
     private let createTask: CreateTask
+    private let valueFormatter: NumberFormatter
 
     private var loadCalledBefore = false
 
     @Published private var state: PokemonDetailsViewState
 
     public init(pokemonId: Int,
-         repository: PokemonDetailsRepository,
+                repository: PokemonDetailsRepository,
+                locale: Locale = Locale.autoupdatingCurrent,
          createTask: @escaping CreateTask = { closure in Task { await closure() } } ) {
         self.pokemonId = pokemonId
         self.state = .loading
         self.repository = repository
         self.createTask = createTask
+
+        let valueFormatter = NumberFormatter()
+        valueFormatter.locale = locale
+        valueFormatter.numberStyle = .decimal
+        valueFormatter.maximumFractionDigits = 1
+        self.valueFormatter = valueFormatter
     }
 
     public func perform(_ action: PokemonDetailsViewAction) {
@@ -63,11 +71,12 @@ public class PokemonDetailsViewModel: ViewModel {
 
     private func setStateToLoaded(details: PokemonDetails) {
         let types = details.types.map { $0.capitalized }.joined(separator: ", ")
-        let weightInKg = Float(details.weightInHectograms)*0.1
-        let weightText = "\(weightInKg)kg"
 
-        let heightInMeters = Float(details.heightInDecimeters)*0.1
-        let heightText = "\(heightInMeters)m"
+        let weightInKg = Double(details.weightInHectograms)*0.1
+        let weightText = "\(stringFor(value: weightInKg))kg"
+
+        let heightInMeters = Double(details.heightInDecimeters)*0.1
+        let heightText = "\(stringFor(value: heightInMeters))m"
 
         let loadedDetailsViewState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
                                                                    imageURL: details.image,
@@ -76,6 +85,10 @@ public class PokemonDetailsViewModel: ViewModel {
                                                                    types: types)
 
         state = .loaded(details: loadedDetailsViewState)
+    }
+
+    private func stringFor(value: Double) -> String {
+        valueFormatter.string(from: NSNumber(floatLiteral: value)) ?? String(value)
     }
 
     private var shouldLoadData: Bool {
