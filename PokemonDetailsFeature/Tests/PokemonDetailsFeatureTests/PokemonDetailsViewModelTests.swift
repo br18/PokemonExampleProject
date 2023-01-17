@@ -67,6 +67,34 @@ import PokemonDomain
         expect(sut: sut, toHaveState: .loading)
     }
 
+
+    func test_performLoadData_givenRepositorySuccess_processesAndPopulatesLoadedDetails() async {
+        let pokemonImageURL = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png")!
+        let details = PokemonDetails(name: "bulbasair",
+                                     image: pokemonImageURL,
+                                     heightInDecimeters: 6,
+                                     weightInHectograms: 7687,
+                                     types: ["grass", "insect", "poison"])
+
+        let repository = MockPokemonDetailsRepository()
+        repository.stubbedFetchPokemonDetailsResult = .success(details)
+        let taskManager = TaskManager()
+
+        let sut = makeSut(repository: repository,
+                          createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadData)
+        await taskManager.awaitCurrentTasks()
+
+        let expectedState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
+                                                          imageURL: details.image,
+                                                          weight: "768.7kg",
+                                                          height: "0.6m",
+                                                          types: "Grass, Insect, Poison")
+
+        expect(sut: sut, toHaveState: .loaded(details: expectedState))
+    }
+
     private func makeSut(pokemonId: Int = 0,
                          repository: PokemonDetailsRepository = MockPokemonDetailsRepository(),
                          createTask: @escaping PokemonDetailsViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonDetailsViewModel {

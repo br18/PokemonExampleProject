@@ -48,10 +48,28 @@ class PokemonDetailsViewModel: ViewModel {
         createTask { [weak self] in
             guard let self else { return }
             do {
-                _ = try await self.repository.fetchPokemonDetails(id: self.pokemonId)
+                let result = try await self.repository.fetchPokemonDetails(id: self.pokemonId)
+                self.setStateToLoaded(details: result)
             } catch {
                 self.state = .error
             }
         }
+    }
+
+    private func setStateToLoaded(details: PokemonDetails) {
+        let types = details.types.map { $0.capitalized }.joined(separator: ", ")
+        let weightInKg = Float(details.weightInHectograms)*0.1
+        let weightText = "\(weightInKg)kg"
+
+        let heightInMeters = Float(details.heightInDecimeters)*0.1
+        let heightText = "\(heightInMeters)m"
+
+        let loadedDetailsViewState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
+                                                                   imageURL: details.image,
+                                                                   weight: weightText,
+                                                                   height: heightText,
+                                                                   types: types)
+
+        state = .loaded(details: loadedDetailsViewState)
     }
 }
