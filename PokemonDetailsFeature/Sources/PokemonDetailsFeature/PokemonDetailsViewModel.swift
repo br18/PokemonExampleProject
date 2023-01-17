@@ -43,6 +43,8 @@ class PokemonDetailsViewModel: ViewModel {
     }
 
     private func loadData() {
+        state = .loading
+
         createTask { [weak self] in
             guard let self else { return }
             do {
