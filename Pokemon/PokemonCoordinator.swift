@@ -7,30 +7,29 @@
 
 import Foundation
 import UIKit
-import PokemonListFeature
-import PokemonDetailsFeature
 
-@MainActor class PokemonCoordinator {
+class PokemonCoordinator {
     private let navigationController: UINavigationController
-    private let repository: PokemonRepository & PokemonDetailsRepository
+    private let dependencies: Dependencies
 
-    init(navigationController: UINavigationController,
-         repository: PokemonRepository & PokemonDetailsRepository) {
+    struct Dependencies {
+        var makeListView: (@escaping (Int) -> Void) -> UIViewController
+        var makeDetailsView: (Int) -> UIViewController
+    }
+
+    init(navigationController: UINavigationController, dependencies: Dependencies) {
         self.navigationController = navigationController
         navigationController.navigationBar.prefersLargeTitles = true
-        self.repository = repository
+        self.dependencies = dependencies
     }
 
     func start() {
-        let viewModel = PokemonListViewModel(pokemonRepository: repository, viewDetails: { [weak self] id in
+        navigationController.pushViewController(dependencies.makeListView { [weak self] id in
             self?.showPokemonDetails(id: id)
-        })
-        navigationController.pushViewController(PokemonListViewController(viewModel: viewModel), animated: false)
+        }, animated: false)
     }
 
     private func showPokemonDetails(id: Int) {
-        let viewModel = PokemonDetailsViewModel(pokemonId: id, repository: repository)
-        navigationController.pushViewController(PokemonDetailsViewController(viewModel: viewModel), animated: true)
+        navigationController.pushViewController(dependencies.makeDetailsView(id), animated: true)
     }
-
 }

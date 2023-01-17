@@ -10,10 +10,27 @@ import PokemonAPI
 import PokemonListFeature
 import PokemonDetailsFeature
 
-private class Dependencies {
+@MainActor private class Dependencies {
     private lazy var urlSession = URLSession.shared
     private lazy var httpClient = URLSessionHTTPClient(urlSession: urlSession)
     lazy var pokemonAPI = PokemonAPIClient(httpClient: httpClient)
+}
+
+private extension Dependencies {
+    private func makeListView(viewDetails: @escaping (Int) -> Void) -> UIViewController {
+        let viewModel = PokemonListViewModel(pokemonRepository: pokemonAPI, viewDetails: viewDetails)
+        return PokemonListViewController(viewModel: viewModel)
+    }
+
+    private func makeDetailsView(id: Int) -> UIViewController {
+        let viewModel = PokemonDetailsViewModel(pokemonId: id, repository: pokemonAPI)
+        return PokemonDetailsViewController(viewModel: viewModel)
+    }
+
+    func coordinatorDependencies() -> PokemonCoordinator.Dependencies {
+        PokemonCoordinator.Dependencies(makeListView: { self.makeListView(viewDetails: $0) },
+                                        makeDetailsView: { self.makeDetailsView(id: $0)})
+    }
 }
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -30,7 +47,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
             let navigationController = UINavigationController()
             coordinator = PokemonCoordinator(navigationController: navigationController,
-                                             repository: depdendencies.pokemonAPI)
+                                             dependencies: depdendencies.coordinatorDependencies())
             window.rootViewController = navigationController
 
             self.window = window
