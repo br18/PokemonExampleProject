@@ -24,6 +24,8 @@ class PokemonDetailsViewModel: ViewModel {
     private let repository: PokemonDetailsRepository
     private let createTask: CreateTask
 
+    private var loadCalledBefore = false
+
     @Published private var state: PokemonDetailsViewState
 
     init(pokemonId: Int,
@@ -38,11 +40,14 @@ class PokemonDetailsViewModel: ViewModel {
     func perform(_ action: PokemonDetailsViewAction) {
         switch action {
         case .loadData:
-            loadData()
+            if shouldLoadData {
+                loadData()
+            }
         }
     }
 
     private func loadData() {
+        loadCalledBefore = true
         state = .loading
 
         createTask { [weak self] in
@@ -71,5 +76,12 @@ class PokemonDetailsViewModel: ViewModel {
                                                                    types: types)
 
         state = .loaded(details: loadedDetailsViewState)
+    }
+
+    private var shouldLoadData: Bool {
+        if case .loading = state {
+            return !loadCalledBefore
+        }
+        return true
     }
 }

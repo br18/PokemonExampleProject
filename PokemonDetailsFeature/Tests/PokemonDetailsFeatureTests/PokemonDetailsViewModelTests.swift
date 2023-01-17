@@ -95,6 +95,29 @@ import PokemonDomain
         expect(sut: sut, toHaveState: .loaded(details: expectedState))
     }
 
+    func test_performLoadDataManyTimesWhilstStillLoading_onlyCallsRepositoryOnce() async {
+        let pokemonId = 94853
+        let repository = MockPokemonDetailsRepository()
+        let taskManager = TaskManager()
+
+        let sut = makeSut(pokemonId: pokemonId,
+                          repository: repository,
+                          createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+        sut.perform(.loadData)
+
+        await taskManager.awaitCurrentTasks()
+
+        XCTAssertEqual(repository.fetchPokemonDetailsParameters.count, 1)
+        XCTAssertEqual(repository.fetchPokemonDetailsParameters.first, pokemonId)
+    }
+
     private func makeSut(pokemonId: Int = 0,
                          repository: PokemonDetailsRepository = MockPokemonDetailsRepository(),
                          createTask: @escaping PokemonDetailsViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonDetailsViewModel {
