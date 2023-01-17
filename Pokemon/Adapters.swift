@@ -9,6 +9,7 @@ import Foundation
 import PokemonDomain
 import PokemonListFeature
 import PokemonAPI
+import PokemonDetailsFeature
 
 extension PokemonAPIClient: PokemonRepository {
     public func fetchPokemon(offset: Int, limit: Int) async throws -> (pokemon: [PokemonDomain.Pokemon], totalCount: Int) {
@@ -18,3 +19,5 @@ extension PokemonAPIClient: PokemonRepository {
 }
 
 extension URLSession: URLSessionURLFetching {}
+
+extension PokemonAPIClient: PokemonDetailsRepository {}

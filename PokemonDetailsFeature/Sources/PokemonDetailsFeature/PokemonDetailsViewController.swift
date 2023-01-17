@@ -9,7 +9,7 @@ import UIKit
 import Combine
 import SharedUI
 
-class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.State == PokemonDetailsViewState, VM.Action == PokemonDetailsViewAction {
+public class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.State == PokemonDetailsViewState, VM.Action == PokemonDetailsViewAction {
 
     @IBOutlet var detailsContainerView: UIView!
     @IBOutlet var imageView: UIImageView!
@@ -31,7 +31,7 @@ class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.St
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
 
         viewModel.perform(.loadData)

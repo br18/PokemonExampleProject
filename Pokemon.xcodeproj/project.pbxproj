@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B5478B3D29772303006E08F7 /* PokemonDetailsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B5478B3C29772303006E08F7 /* PokemonDetailsFeature */; };
 		B577E6002971BCF7005216E3 /* PokemonAPI in Frameworks */ = {isa = PBXBuildFile; productRef = B577E5FF2971BCF7005216E3 /* PokemonAPI */; };
 		B5892B0B29715A0F00355305 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0A29715A0F00355305 /* AppDelegate.swift */; };
 		B5892B0D29715A0F00355305 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0C29715A0F00355305 /* SceneDelegate.swift */; };
@@ -65,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5478B3D29772303006E08F7 /* PokemonDetailsFeature in Frameworks */,
 				B591AE16297602A900248492 /* PokemonDomain in Frameworks */,
 				B591AE18297602A900248492 /* PokemonListFeature in Frameworks */,
 				B577E6002971BCF7005216E3 /* PokemonAPI in Frameworks */,
@@ -173,6 +175,7 @@
 				B577E5FF2971BCF7005216E3 /* PokemonAPI */,
 				B591AE15297602A900248492 /* PokemonDomain */,
 				B591AE17297602A900248492 /* PokemonListFeature */,
+				B5478B3C29772303006E08F7 /* PokemonDetailsFeature */,
 			);
 			productName = Pokemon;
 			productReference = B5892B0729715A0F00355305 /* Pokemon.app */;
@@ -619,6 +622,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B5478B3C29772303006E08F7 /* PokemonDetailsFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PokemonDetailsFeature;
+		};
 		B577E5FF2971BCF7005216E3 /* PokemonAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PokemonAPI;

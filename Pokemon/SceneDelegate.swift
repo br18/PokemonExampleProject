@@ -8,6 +8,7 @@
 import UIKit
 import PokemonAPI
 import PokemonListFeature
+import PokemonDetailsFeature
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -18,12 +19,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
 
+            let navigationController = UINavigationController()
+
             let pokemonRepository = PokemonAPIClient(httpClient: URLSessionHTTPClient(urlSession: URLSession.shared))
             let viewModel = PokemonListViewModel(pokemonRepository: pokemonRepository) { id in
-                print("View pokemon details: \(id)")
+               let detailsViewModel = PokemonDetailsViewModel(pokemonId: id, repository: pokemonRepository)
+                let viewController = PokemonDetailsViewController(viewModel: detailsViewModel)
+                navigationController.pushViewController(viewController, animated: true)
             }
 
-            window.rootViewController = UINavigationController(rootViewController: PokemonListViewController(viewModel: viewModel))
+            navigationController.pushViewController(PokemonListViewController(viewModel: viewModel),
+                                                    animated: false)
+
+            window.rootViewController = navigationController
 
             self.window = window
             window.makeKeyAndVisible()
