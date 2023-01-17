@@ -18,10 +18,29 @@ import PokemonDomain
         expect(sut: sut, toHaveState: .loading)
     }
 
+    func test_performLoadData_callsRepositoryFetchWithPokemonId() async {
+        let pokemonId = 94853
+        let repository = MockPokemonDetailsRepository()
+        let taskManager = TaskManager()
 
-    private func makeSut(repository: PokemonDetailsRepository = MockPokemonDetailsRepository(),
+        let sut = makeSut(pokemonId: pokemonId,
+                          repository: repository,
+                          createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadData)
+
+        await taskManager.awaitCurrentTasks()
+
+        XCTAssertEqual(repository.fetchPokemonDetailsParameters.count, 1)
+        XCTAssertEqual(repository.fetchPokemonDetailsParameters.first, pokemonId)
+    }
+
+    private func makeSut(pokemonId: Int = 0,
+                         repository: PokemonDetailsRepository = MockPokemonDetailsRepository(),
                          createTask: @escaping PokemonDetailsViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonDetailsViewModel {
-        let sut = PokemonDetailsViewModel(repository: repository, createTask: createTask)
+        let sut = PokemonDetailsViewModel(pokemonId: pokemonId,
+                                          repository: repository,
+                                          createTask: createTask)
         trackForMemoryLeaks(sut)
         return sut
     }
