@@ -11,10 +11,13 @@ import SharedUI
 
 class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.State == PokemonDetailsViewState, VM.Action == PokemonDetailsViewAction {
 
+    @IBOutlet var detailsContainerView: UIView!
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var weightLabel: UILabel!
     @IBOutlet var heightLabel: UILabel!
     @IBOutlet var typesLabel: UILabel!
+    @IBOutlet var errorView: UIView!
+    @IBOutlet var loadingView: UIView!
     private let viewModel: VM
 
     private var cancellables = Set<AnyCancellable>()
@@ -36,5 +39,13 @@ class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.St
         viewModel.statePublisher.sink { state in
             
         }.store(in: &cancellables)
+    }
+
+    private func changeState(state: PokemonDetailsViewState) {
+        
+    }
+
+    @IBAction func retryButtonTapped(_ sender: Any) {
+        viewModel.perform(.loadData)
     }
 }

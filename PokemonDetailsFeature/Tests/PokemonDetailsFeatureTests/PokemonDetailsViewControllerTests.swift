@@ -43,6 +43,20 @@ import SharedTestHelpers
 
     }
 
+    func test_whenErrorRetryButtonTapped_loadActionDataIsPerformed() {
+        let viewModel = ViewModel(initialState: .loading)
+
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 1)
+
+        sut.retryButtonTapped(self)
+
+        XCTAssertEqual(viewModel.performActionParameters.count, 2)
+        XCTAssertEqual(viewModel.performActionParameters.first, .loadData)
+        XCTAssertEqual(viewModel.performActionParameters.last, .loadData)
+    }
+
     private func makeSut(viewModel: ViewModel) -> PokemonDetailsViewController<ViewModel> {
         let viewController = PokemonDetailsViewController(viewModel: viewModel)
         _ = viewController.view
