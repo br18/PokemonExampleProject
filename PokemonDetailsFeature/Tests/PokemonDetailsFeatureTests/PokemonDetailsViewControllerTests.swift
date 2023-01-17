@@ -57,7 +57,6 @@ import SharedTestHelpers
         XCTAssertEqual(sut.loadingView.isHidden, true)
         XCTAssertEqual(sut.detailsContainerView.isHidden, false)
         XCTAssertEqual(sut.errorView.isHidden, true)
-
         XCTAssertEqual(sut.title, details.name)
         XCTAssertEqual(sut.weightLabel.text, details.weight)
         XCTAssertEqual(sut.heightLabel.text, details.height)
@@ -65,11 +64,31 @@ import SharedTestHelpers
     }
 
     func test_whenStateIsLoadingAndTransitionsToLoaded_loadingAndErrorViewAreHiddenAndDataIsPopulated() {
+        let viewModel = ViewModel(initialState: .loading)
 
+        let sut = makeSut(viewModel: viewModel)
+
+        viewModel.state = .loaded(details: details)
+
+        XCTAssertEqual(sut.loadingView.isHidden, true)
+        XCTAssertEqual(sut.detailsContainerView.isHidden, false)
+        XCTAssertEqual(sut.errorView.isHidden, true)
+        XCTAssertEqual(sut.title, details.name)
+        XCTAssertEqual(sut.weightLabel.text, details.weight)
+        XCTAssertEqual(sut.heightLabel.text, details.height)
+        XCTAssertEqual(sut.typesLabel.text, details.types)
     }
 
     func test_whenStateIsLoadingAndTransitionsToError_loadingViewIsHiddenAndErrorViewIsShown() {
+        let viewModel = ViewModel(initialState: .loading)
 
+        let sut = makeSut(viewModel: viewModel)
+
+        viewModel.state = .error
+
+        XCTAssertEqual(sut.loadingView.isHidden, true)
+        XCTAssertEqual(sut.detailsContainerView.isHidden, true)
+        XCTAssertEqual(sut.errorView.isHidden, false)
     }
 
     func test_whenErrorRetryButtonTapped_loadActionDataIsPerformed() {
