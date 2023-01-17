@@ -17,6 +17,7 @@ import PokemonDetailsFeature
     init(navigationController: UINavigationController,
          repository: PokemonRepository & PokemonDetailsRepository) {
         self.navigationController = navigationController
+        navigationController.navigationBar.prefersLargeTitles = true
         self.repository = repository
     }
 

@@ -11,8 +11,8 @@ import PokemonListFeature
 import PokemonDetailsFeature
 
 private class Dependencies {
-    lazy var urlSession = URLSession.shared
-    lazy var httpClient = URLSessionHTTPClient(urlSession: urlSession)
+    private lazy var urlSession = URLSession.shared
+    private lazy var httpClient = URLSessionHTTPClient(urlSession: urlSession)
     lazy var pokemonAPI = PokemonAPIClient(httpClient: httpClient)
 }
 
