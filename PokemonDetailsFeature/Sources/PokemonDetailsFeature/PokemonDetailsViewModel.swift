@@ -10,11 +10,11 @@ import SharedUI
 import Combine
 import PokemonDomain
 
-protocol PokemonDetailsRepository {
+public protocol PokemonDetailsRepository {
     func fetchPokemonDetails(id: Int) async throws -> PokemonDetails
 }
 
-class PokemonDetailsViewModel: ViewModel {
+public class PokemonDetailsViewModel: ViewModel {
     public typealias CreateTask = (@escaping () async -> Void) -> Void
     
     public var statePublisher: AnyPublisher<PokemonDetailsViewState, Never> { $state.eraseToAnyPublisher() }
@@ -28,7 +28,7 @@ class PokemonDetailsViewModel: ViewModel {
 
     @Published private var state: PokemonDetailsViewState
 
-    init(pokemonId: Int,
+    public init(pokemonId: Int,
          repository: PokemonDetailsRepository,
          createTask: @escaping CreateTask = { closure in Task { await closure() } } ) {
         self.pokemonId = pokemonId
@@ -37,7 +37,7 @@ class PokemonDetailsViewModel: ViewModel {
         self.createTask = createTask
     }
 
-    func perform(_ action: PokemonDetailsViewAction) {
+    public func perform(_ action: PokemonDetailsViewAction) {
         switch action {
         case .loadData:
             if shouldLoadData {

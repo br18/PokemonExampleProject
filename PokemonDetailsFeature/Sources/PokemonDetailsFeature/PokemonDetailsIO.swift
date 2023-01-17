@@ -9,15 +9,23 @@ import Foundation
 
 // MARK: - View Input - State
 
-struct PokemonLoadedDetailsViewState {
+public struct PokemonLoadedDetailsViewState {
     let name: String
     let imageURL: URL
     let weight: String
     let height: String
     let types: String
+
+    init(name: String, imageURL: URL, weight: String, height: String, types: String) {
+        self.name = name
+        self.imageURL = imageURL
+        self.weight = weight
+        self.height = height
+        self.types = types
+    }
 }
 
-enum PokemonDetailsViewState {
+public enum PokemonDetailsViewState {
     case loading
     case error
     case loaded(details: PokemonLoadedDetailsViewState)
@@ -25,6 +33,6 @@ enum PokemonDetailsViewState {
 
 // MARK: - View Output - Actions
 
-enum PokemonDetailsViewAction {
+public enum PokemonDetailsViewAction {
     case loadData
 }
