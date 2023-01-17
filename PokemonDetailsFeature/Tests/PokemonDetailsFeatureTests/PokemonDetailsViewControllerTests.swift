@@ -24,11 +24,23 @@ import SharedTestHelpers
     }
 
     func test_whenStateIsLoading_loadingViewIsShownAndErrorViewIsHidden() {
+        let viewModel = ViewModel(initialState: .loading)
 
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(sut.loadingView.isHidden, false)
+        XCTAssertEqual(sut.detailsContainerView.isHidden, true)
+        XCTAssertEqual(sut.errorView.isHidden, true)
     }
 
-    func test_whenStateIsError_loadingViewIsShownAndErrorViewIsHidden() {
-        
+    func test_whenStateIsError_errorViewIsShownAndLoadedViewIsHidden() {
+        let viewModel = ViewModel(initialState: .error)
+
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(sut.loadingView.isHidden, true)
+        XCTAssertEqual(sut.detailsContainerView.isHidden, true)
+        XCTAssertEqual(sut.errorView.isHidden, false)
     }
 
     func test_whenStateIsLoaded_loadingAndErrorViewAreHiddenAndDataIsPopulated() {

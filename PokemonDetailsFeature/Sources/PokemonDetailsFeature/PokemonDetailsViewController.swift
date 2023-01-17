@@ -36,13 +36,24 @@ class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.St
 
         viewModel.perform(.loadData)
 
-        viewModel.statePublisher.sink { state in
-            
+        viewModel.statePublisher.sink { [weak self] state in
+            self?.changeState(state: state)
         }.store(in: &cancellables)
     }
 
     private func changeState(state: PokemonDetailsViewState) {
-        
+        loadingView.isHidden = true
+        errorView.isHidden = true
+        detailsContainerView.isHidden = true
+
+        switch state {
+        case .loading:
+            loadingView.isHidden = false
+        case .error:
+            errorView.isHidden = false
+        case .loaded(details: let details):
+            break
+        }
     }
 
     @IBAction func retryButtonTapped(_ sender: Any) {
