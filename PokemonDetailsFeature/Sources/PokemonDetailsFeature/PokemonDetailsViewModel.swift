@@ -48,7 +48,7 @@ class PokemonDetailsViewModel: ViewModel {
             do {
                 _ = try await self.repository.fetchPokemonDetails(id: self.pokemonId)
             } catch {
-
+                self.state = .error
             }
         }
     }

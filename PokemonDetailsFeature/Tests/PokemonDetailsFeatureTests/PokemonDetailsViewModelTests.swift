@@ -35,6 +35,23 @@ import PokemonDomain
         XCTAssertEqual(repository.fetchPokemonDetailsParameters.first, pokemonId)
     }
 
+    func test_performLoadData_whenRepositoryFetchFails_goesToErrorState() async {
+        let pokemonId = 94853
+        let repository = MockPokemonDetailsRepository()
+        repository.stubbedFetchPokemonDetailsResult = .failure(MockError.mock1)
+        let taskManager = TaskManager()
+
+        let sut = makeSut(pokemonId: pokemonId,
+                          repository: repository,
+                          createTask: taskManager.createTask(_:))
+
+        sut.perform(.loadData)
+
+        await taskManager.awaitCurrentTasks()
+
+        expect(sut: sut, toHaveState: .error)
+    }
+
     private func makeSut(pokemonId: Int = 0,
                          repository: PokemonDetailsRepository = MockPokemonDetailsRepository(),
                          createTask: @escaping PokemonDetailsViewModel.CreateTask = { closure in Task { await closure() } } ) -> PokemonDetailsViewModel {
