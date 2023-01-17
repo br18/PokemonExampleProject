@@ -10,30 +10,32 @@ import PokemonAPI
 import PokemonListFeature
 import PokemonDetailsFeature
 
+private class Dependencies {
+    lazy var urlSession = URLSession.shared
+    lazy var httpClient = URLSessionHTTPClient(urlSession: urlSession)
+    lazy var pokemonAPI = PokemonAPIClient(httpClient: httpClient)
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    private lazy var depdendencies = Dependencies()
+
+    private var coordinator: PokemonCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
 
             let navigationController = UINavigationController()
-
-            let pokemonRepository = PokemonAPIClient(httpClient: URLSessionHTTPClient(urlSession: URLSession.shared))
-            let viewModel = PokemonListViewModel(pokemonRepository: pokemonRepository) { id in
-               let detailsViewModel = PokemonDetailsViewModel(pokemonId: id, repository: pokemonRepository)
-                let viewController = PokemonDetailsViewController(viewModel: detailsViewModel)
-                navigationController.pushViewController(viewController, animated: true)
-            }
-
-            navigationController.pushViewController(PokemonListViewController(viewModel: viewModel),
-                                                    animated: false)
-
+            coordinator = PokemonCoordinator(navigationController: navigationController,
+                                             repository: depdendencies.pokemonAPI)
             window.rootViewController = navigationController
 
             self.window = window
+
+            coordinator?.start()
             window.makeKeyAndVisible()
         }
     }

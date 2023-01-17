@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B5478B3D29772303006E08F7 /* PokemonDetailsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B5478B3C29772303006E08F7 /* PokemonDetailsFeature */; };
+		B5478B4129772537006E08F7 /* PokemonCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5478B4029772537006E08F7 /* PokemonCoordinator.swift */; };
 		B577E6002971BCF7005216E3 /* PokemonAPI in Frameworks */ = {isa = PBXBuildFile; productRef = B577E5FF2971BCF7005216E3 /* PokemonAPI */; };
 		B5892B0B29715A0F00355305 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0A29715A0F00355305 /* AppDelegate.swift */; };
 		B5892B0D29715A0F00355305 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5892B0C29715A0F00355305 /* SceneDelegate.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B5478B4029772537006E08F7 /* PokemonCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonCoordinator.swift; sourceTree = "<group>"; };
 		B553EE0F2976124900FBC79F /* SharedUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedUI; sourceTree = "<group>"; };
 		B56B01122976187E00A51F49 /* PokemonDetailsFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonDetailsFeature; sourceTree = "<group>"; };
 		B577E6012971C18D005216E3 /* PokemonListFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PokemonListFeature; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 				B5892B1529715A1000355305 /* LaunchScreen.storyboard */,
 				B5892B1829715A1000355305 /* Info.plist */,
 				B591AE19297602EC00248492 /* Adapters.swift */,
+				B5478B4029772537006E08F7 /* PokemonCoordinator.swift */,
 			);
 			path = Pokemon;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 				B591AE1A297602EC00248492 /* Adapters.swift in Sources */,
 				B5892B0B29715A0F00355305 /* AppDelegate.swift in Sources */,
 				B5892B0D29715A0F00355305 /* SceneDelegate.swift in Sources */,
+				B5478B4129772537006E08F7 /* PokemonCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
