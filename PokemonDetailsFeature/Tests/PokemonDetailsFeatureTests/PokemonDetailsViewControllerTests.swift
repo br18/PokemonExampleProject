@@ -11,8 +11,14 @@ import SharedTestHelpers
 @testable import PokemonDetailsFeature
 
 @MainActor final class PokemonDetailsViewControllerTests: XCTestCase {
-
     typealias ViewModel = StubViewModel<PokemonDetailsViewState, PokemonDetailsViewAction>
+
+    let pokemonImageURL = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png")!
+    lazy var details = PokemonLoadedDetailsViewState(name: "Name",
+                                                imageURL: pokemonImageURL,
+                                                weight: "35kg",
+                                                height: "4.5m",
+                                                types: "Grass, Water")
     
     func test_onViewDidLoad_loadDataActionPerformed() {
         let viewModel = ViewModel(initialState: .loading)
@@ -44,7 +50,18 @@ import SharedTestHelpers
     }
 
     func test_whenStateIsLoaded_loadingAndErrorViewAreHiddenAndDataIsPopulated() {
+        let viewModel = ViewModel(initialState: .loaded(details: details))
 
+        let sut = makeSut(viewModel: viewModel)
+
+        XCTAssertEqual(sut.loadingView.isHidden, true)
+        XCTAssertEqual(sut.detailsContainerView.isHidden, false)
+        XCTAssertEqual(sut.errorView.isHidden, true)
+
+        XCTAssertEqual(sut.title, details.name)
+        XCTAssertEqual(sut.weightLabel.text, details.weight)
+        XCTAssertEqual(sut.heightLabel.text, details.height)
+        XCTAssertEqual(sut.typesLabel.text, details.types)
     }
 
     func test_whenStateIsLoadingAndTransitionsToLoaded_loadingAndErrorViewAreHiddenAndDataIsPopulated() {

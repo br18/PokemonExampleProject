@@ -52,7 +52,12 @@ class PokemonDetailsViewController<VM: ViewModel>:  UIViewController where VM.St
         case .error:
             errorView.isHidden = false
         case .loaded(details: let details):
-            break
+            title = details.name
+            imageView.load(url: details.imageURL)
+            heightLabel.text = details.height
+            weightLabel.text = details.weight
+            typesLabel.text = details.types
+            detailsContainerView.isHidden = false
         }
     }
 
