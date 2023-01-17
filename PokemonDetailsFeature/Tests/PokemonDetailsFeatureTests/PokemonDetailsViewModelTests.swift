@@ -88,9 +88,9 @@ import PokemonDomain
 
         let expectedState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
                                                           imageURL: details.image,
-                                                          weight: "4.2kg",
-                                                          height: "0.6m",
-                                                          types: "Grass, Insect, Poison")
+                                                          weight: "Weight: 4.2kg",
+                                                          height: "Height: 0.6m",
+                                                          types: "Types: Grass, Insect, Poison")
 
         expect(sut: sut, toHaveState: .loaded(details: expectedState))
     }

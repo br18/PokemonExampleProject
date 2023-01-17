@@ -73,16 +73,16 @@ public class PokemonDetailsViewModel: ViewModel {
         let types = details.types.map { $0.capitalized }.joined(separator: ", ")
 
         let weightInKg = Double(details.weightInHectograms)*0.1
-        let weightText = "\(stringFor(value: weightInKg))kg"
+        let weightText = "Weight: \(stringFor(value: weightInKg))kg"
 
         let heightInMeters = Double(details.heightInDecimeters)*0.1
-        let heightText = "\(stringFor(value: heightInMeters))m"
+        let heightText = "Height: \(stringFor(value: heightInMeters))m"
 
         let loadedDetailsViewState = PokemonLoadedDetailsViewState(name: details.name.capitalized,
                                                                    imageURL: details.image,
                                                                    weight: weightText,
                                                                    height: heightText,
-                                                                   types: types)
+                                                                   types: "Types: \(types)")
 
         state = .loaded(details: loadedDetailsViewState)
     }
