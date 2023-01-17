@@ -14,7 +14,7 @@ struct PokemonLoadedDetailsViewState {
     let imageURL: URL
     let weight: String
     let height: String
-    let types: [String]
+    let types: String
 }
 
 enum PokemonDetailsViewState {
