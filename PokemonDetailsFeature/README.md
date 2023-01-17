@@ -1,3 +1,3 @@
 # PokemonDetailsFeature
 
-A description of this package.
+Show details of Pokemon with a given id.

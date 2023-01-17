@@ -1,3 +1,3 @@
 # PokemonListFeature
 
-A description of this package.
+Show a scrolling list of Pokemon names.

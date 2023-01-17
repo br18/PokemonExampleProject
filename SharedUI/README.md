@@ -1,3 +1,3 @@
 # SharedUI
 
-A description of this package.
+Shared UI components/helper classes.
