@@ -239,28 +239,6 @@ import SharedTestHelpers
     }
 }
 
-class TaskManager {
-    var ignoreNewTasks = false
-
-    var taskClosures = [() async -> Void]()
-
-    func createTask(_ closure: @escaping () async -> Void) {
-        if ignoreNewTasks {
-            return
-        }
-
-        taskClosures.append(closure)
-    }
-
-    func awaitCurrentTasks() async {
-        while let taskClosure = taskClosures.popLast() {
-            _ = await Task {
-                await taskClosure()
-            }.result
-        }
-    }
-}
-
 private class StubPokemonRepository: PokemonRepository {
     typealias FetchPokemonSuccess = (pokemon: [Pokemon], totalCount: Int)
     var fetchPokemonParametersList = [(offset: Int, limit: Int)]()
